@@ -2,46 +2,19 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# What is Frost?
 
-Let's discover **Docusaurus in less than 5 minutes**.
+Frost is an [ORM](https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping) (Object Relational Mapping) Library that utilizes Typescript Decorators to simplify working with [Firebases's Realtime DB](https://firebase.google.com/products/realtime-database).
+Frost Focuses on the relations between the database nodes and generates all the needed code for the developer to fetch these nodes with the ones related to them.
+It also utilizes [ReactiveX](https://reactivex.io/) to provide the developer with observables that listen to the changes on theses nodes. And Of course provide the developer with the utilities to preform basic operations on the database.
 
 ## Getting Started
 
-Get started by **creating a new site**.
-
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+Before we head to defining the classes and the relations between them, we need to setup the project.
 
 ### What you'll need
 
-- [Node.js](https://nodejs.org/en/download/) version 16.14 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+- Decorators Support in your project. if you don't have it already **[follow this guide](/docs/guides/decorators-support)**
+- Firebase Database credentials to initialize the database client.
 
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
-```
-
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
-
-The command also installs all necessary dependencies you need to run Docusaurus.
-
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+Finally you can follow the [installation guide](/docs/guides/installation) and then go through the documentation or follow the [quick start guide](/docs/guides/quick-start)

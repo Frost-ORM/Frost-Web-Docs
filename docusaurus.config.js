@@ -6,8 +6,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'Frost ORM',
+  tagline: 'The coolest ORM for Firebase realtime database',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -16,9 +16,9 @@ const config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   url: 'https://frostorm.github.io', // Your website URL
-  baseUrl: '/',
+  baseUrl: '/frost-web-docs/',
   projectName: 'frost-web-docs',
-  organizationName: 'Frost',
+  organizationName: 'Frost-ORM',
   trailingSlash: false,
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -60,14 +60,40 @@ const config = {
       }),
     ],
   ],
+plugins:[
+  [
+    '@docusaurus/plugin-content-docs',
+    {
+      id: 'api',
+      path: 'api',
+      routeBasePath: 'api',
+      sidebarPath: require.resolve('./sidebars.js'),
+
+      // ... other options
+    },
+  ],
+  [
+    '@docusaurus/plugin-client-redirects',
+    {
+      redirects: [
+        {
+          to: '/api/intro',
+          from: '/api/modules',
+        },
+
+      ],
+    },
+  ],
+
+],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: 'My Site',
+        title: 'FrostORM Web',
         logo: {
-          alt: 'My Site Logo',
+          alt: 'FrostORM Web Logo',
           src: 'img/logo.svg',
         },
         items: [
@@ -75,14 +101,15 @@ const config = {
             type: 'doc',
             docId: 'intro',
             position: 'left',
-            label: 'Tutorial',
+            label: 'Docs',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
-          {
-            href: 'https://github.com/facebook/docusaurus',
-            label: 'GitHub',
-            position: 'right',
-          },
+          {to: '/api/modules', label: 'API', position: 'left'},
+          // {to: '/blog', label: 'Blog', position: 'left'},
+          // {
+          //   href: 'https://github.com/facebook/docusaurus',
+          //   label: 'GitHub',
+          //   position: 'right',
+          // },
         ],
       },
       footer: {
@@ -128,7 +155,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} FrostORM.`,
       },
       prism: {
         theme: lightCodeTheme,
