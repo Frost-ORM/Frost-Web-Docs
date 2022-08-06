@@ -4,7 +4,7 @@
 
 Ƭ **SerializeOptionsWithoutNullCall**<`T`, `P`\>: `Object`
 
-Options object passed to the function [Serialize](../functions/Serialize.md)
+Options object passed to the function [Serialize](../decorators/Serialize.md)
 
 **`Property`**
 

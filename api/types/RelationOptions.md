@@ -4,7 +4,7 @@
 
 Ƭ **RelationOptions**: `Object`
 
-Interface of the options that are passed to the [Relation](../functions/Relation.md) Decorator
+Interface of the options that are passed to the [Relation](../decorators/Relation.md) Decorator
 
 **`Example`**
 

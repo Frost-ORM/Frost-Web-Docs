@@ -76,10 +76,10 @@ plugins:[
     '@docusaurus/plugin-client-redirects',
     {
       redirects: [
-        {
-          to: '/api/intro',
-          from: '/api/modules',
-        },
+        // {
+        //   to: '/api/intro',
+        //   from: '/api/modules',
+        // },
 
       ],
     },

@@ -35,12 +35,12 @@ title: "API Reference"
 
 ### Functions
 
-- [DateSerializer](functions/DateSerializer.md)
-- [Exclude](functions/Exclude.md)
-- [FrostEntity](functions/FrostEntity.md)
-- [FrostNode](functions/FrostNode.md)
-- [Relation](functions/Relation.md)
-- [Serialize](functions/Serialize.md)
+- [DateSerializer](decorators/DateSerializer.md)
+- [Exclude](decorators/Exclude.md)
+- [FrostEntity](decorators/FrostEntity.md)
+- [FrostNode](decorators/FrostNode.md)
+- [Relation](decorators/Relation.md)
+- [Serialize](decorators/Serialize.md)
 - [getIndices](functions/getIndices.md)
 - [join](functions/join.md)
 - [observable](functions/observable.md)
