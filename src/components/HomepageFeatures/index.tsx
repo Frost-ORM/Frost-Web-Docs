@@ -4,48 +4,54 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+  Svg?: React.ComponentType<React.ComponentProps<'svg'>>;
+  image?: React.ReactElement;
   description: JSX.Element;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/simplify.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Frost was designed on top of Firebase database to simplify creating documents and relations between them.<br/>
+         Frost Will handle all the implantation of the code required to do the basic CRUD operations and provide more advanced operations.
       </>
     ),
   },
   {
     title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    image: <img src={('img/relations.jpg')} className={styles.featureSvg} role="img"/>,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Frost utilizes decorators to define all the relations easily.<br/>
+        Frost lets you focus on object shapes and relations between them.
+         <br/> Let Frost Handle the rest
       </>
     ),
   },
   {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: 'Reactive',
+    Svg: require('@site/static/img/reactive.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Frost utilizes ReactiveX to handle all realtime related functionality.
+         This allows the user to extend on its functionality and use the many different operations to modify the experience as they desire.
       </>
+      //  <>
+      //   Frost utilizes ReactiveX to handle all realtime related functionality, it also provides tools to configure and control the listening to the events.
+      //    Using ReactiveX will allow the user to extend on its functionality and use the many different operations to modify the experience of listening to realtime events to an apt way for the user.
+      // </>
     ),
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({title, Svg,image, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        {Svg? (<Svg className={styles.featureSvg} role="img" />) : (image || <></>)}
       </div>
       <div className="text--center padding-horiz--md">
         <h3>{title}</h3>
