@@ -1,0 +1,213 @@
+---
+sidebar_position: 2
+description: Using the Relation decorator to define the relations between the already defined nodes
+---
+
+# Define Relations
+In This Section We will list the rules for defining a relation between entities, but if you like you can skip to the guide for each realtion type below. But please look at the higlighted parts.
+To define a relation between two entities:
+- Define a property in both entities with the type of the other entity. 
+- Annotate the properties with [Relation](/api/decorators/Relation).
+  - [RelationOptions](/api/types/RelationOptions):
+    - ***name***: an unique arbitrary string that could describes the relation and the sides.
+      - The Two properties on both side should share the same relation name.
+      - Different relations should have different names.
+      - The name could be somthing like "{side1}-{side2}" so "user-profile" or "student-courses".
+      - This allows you to have multiple relations between the same data types. So for example, if a user has two profiles ["secret profile","public profile"] you could have 2 properties with the same data types but with different relation names.
+    - ***relation***: should be one of the values in the enum [RelationTypes](/api/enums/RelationTypes).
+      - One of the sides should be the main (master) side and the other would secondray (slave).
+      - In Symmetric Relations (One to One, Many to Many) the order of the master and slave doesn't matter.
+      - But in Asymmetric Relations (One to Many) the master should be the `One` side and the slave should be the `Many` side.
+      - ***The relation parameter is what decides which is the master and which is the slave. the relation parameter should only be defined on the master side***
+    - ***type***: the data type of the property that is decorated, this is required becuase of some limitations in the Reflection API in Javascript.
+      - ***Due to cyclic dependancy the type of the property should a function that returns the desired type. so `()=> PropertyType`***
+      - In the type parameter in the RelationOptions ignore the Array brackets in case of `Many`
+
+:::danger
+- ***The [relation](/api/types/RelationOptions#relation) parameter is what decides which is the master and which is the slave. the relation parameter should only be defined on the master side***
+- ***Due to cyclic dependancy the type of the property should a function that returns the desired type. so `()=> PropertyType`***
+:::
+
+```ts
+// User
+@FrostEntity(...)
+class User extends FrostObject{
+  ...
+  @Relation(
+    {
+      name: "User-Profile",
+      relation: RelationTypes.ONE_TO_ONE,
+      type: ()=> Profile,
+    }
+  )
+  profile: () => Profile
+  ...
+}
+
+
+// Profile 
+@FrostEntity(...)
+class Profile extends FrostObject{
+  ...
+  @Relation(
+    {
+      name: "User-Profile",
+      type: () => User,
+    }
+  )
+  user: ()=> User
+  ...
+}
+```
+<div id="One_To_One"></div>
+
+# One To One 
+We'll Use an example of User and Contact Info to explain the process of defining a one to one relation.
+- [RelationOptions](/api/types/RelationOptions):
+  - ***name***: 
+    - an unique arbitrary string that could describes the relation and the sides.
+    - In this example, We wil use "userContactInfo"
+  - ***relation***:
+    - the value will be [RelationTypes.ONE_TO_ONE](/api/enums/RelationTypes#ONE_TO_ONE).
+    - you can assign it on either side.
+    - In this example, We will assign it on the User side.
+  - ***type***: 
+    - Due to cyclic dependancy and some limitations in the Reflection API in Javascript.
+     you will have to pass the type as a function that returns the type of the property in the decorator
+    - In this example, it will be `()=>ContactInfo` on the User side and `()=>User` on the ContactInfo side.
+
+```ts title="example/src/data/user.ts" showLineNumbers
+import {ContactInfo} from './contact-info'
+
+@FrostEntity({collectionPath:'/users'})
+export class User extends FrostObject{
+  id!:string;
+  name!:string;
+  userType!: "Buyer"|"Seller";
+
+//highlight-start
+  @Relation(
+    {
+      name: "userContactInfo",
+      relation: RelationTypes.ONE_TO_ONE,
+      type: ()=> ContactInfo,
+    }
+  )
+  contactInfo?: () => ContactInfo;
+//highlight-end
+
+}
+```
+
+```ts title="example/src/data/contact-info.ts" showLineNumbers
+import {User} from './user'
+
+@FrostEntity({collectionPath:'/contact_info'})
+class ContactInfo extends FrostObject{
+  id!:string;
+  email?:string;
+  address?:string;
+  location?:{lat:string,lng:string};
+  postalCode?:string;
+
+  phones?:{
+    work:string,
+    home:string
+  };
+
+  landlines?:{
+    work:string,
+    home:string
+  };
+
+//highlight-start
+  @Relation(
+    {
+      name: "userContactInfo",
+      type: () => User,
+    }
+  )
+  user?: ()=> User
+//highlight-end
+
+}
+```
+
+
+# One To Many
+
+# Many To Many
+Many to Many is very similar to [One To One](#One_To_One) buth the properties type return arrays of the entity type.
+We'll Use an example of Student and Courses to explain the process of defining a Many to Many relation (one student could enroll in multiple courses and one course could have multiple students auditing it).
+- [RelationOptions](/api/types/RelationOptions):
+  - ***name***: 
+    - an unique arbitrary string that could describes the relation and the sides.
+    - In this example, We wil use "students_courses"
+  - ***relation***:
+    - the value will be [RelationTypes.MANY_TO_MANY](/api/enums/RelationTypes#MANY_TO_MANY).
+    - you can assign it on either side.
+    - In this example, We will assign it on the Student side.
+  - ***type***: 
+    - Due to cyclic dependancy and some limitations in the Reflection API in Javascript.
+     you will have to pass the type as a function that returns the type of the property in the decorator
+    - In this example, it will be `()=>Course` on the Student side and `()=>Student` on the Course side.
+    - ***The property types however should be `()=>Course[]` and `()=>Student[]` respectively***
+
+```ts title="example/src/data/user.ts" showLineNumbers
+import {Course} from './course'
+
+@FrostEntity({collectionPath:'/students'})
+export class Student extends FrostObject{
+
+  id!:string;
+  name!:string;
+  year: "FRESHMAN" | "SOPHMORE" | "JUNIOR" | "SENIOR"
+
+//highlight-start
+  @Relation(
+    {
+      name: "students_courses",
+      relation: RelationTypes.MANY_TO_MANY,
+      type: ()=> Course,
+    }
+  )
+  courses?: () => Course[];
+//highlight-end
+
+}
+```
+
+```ts title="example/src/data/course.ts" showLineNumbers
+import {Student} from './Student'
+
+@FrostEntity({collectionPath:'/courses'})
+class Course extends FrostObject{
+
+  id!:string;
+  name!:string;
+  difficultyLevel!:number;
+  duration!: number; // in weeks
+
+//one to many example (slave side)
+  @Relation(
+    {
+      name: "professor_courses",
+      type: () => Professor,
+    }
+  )
+  professor?:() => Professor
+
+//highlight-start
+  @Relation(
+    {
+      name: "students_courses",
+      type: () => Student,
+    }
+  )
+  students?: ()=> Student[]
+//highlight-end
+
+}
+```
+
+# Full Example
