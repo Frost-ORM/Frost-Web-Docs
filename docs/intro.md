@@ -17,4 +17,5 @@ Before we head to defining the classes and the relations between them, we need t
 - Decorators Support in your project. if you don't have it already **[follow this guide](/docs/guides/decorators-support)**
 - Firebase Database credentials to initialize the database client.
 
-Finally you can follow the [installation guide](/docs/guides/installation) and then go through the documentation or follow the [quick start guide](/docs/guides/quick-start)
+Finally you can follow the [installation guide](/docs/guides/installation) and then go through the documentation 
+<!-- or follow the [quick start guide](/docs/guides/quick-start) -->

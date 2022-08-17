@@ -15,8 +15,8 @@ const config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  url: 'https://frostorm.github.io', // Your website URL
-  baseUrl: '/frost-web-docs/',
+  url: 'https://frost.sami-mishal.online', // Your website URL
+  baseUrl: '/',
   projectName: 'frost-web-docs',
   organizationName: 'Frost-ORM',
   trailingSlash: false,
@@ -37,8 +37,8 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          // editUrl:
+          //   'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
             remarkPlugins: [
               [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
             ],
@@ -104,6 +104,7 @@ plugins:[
             label: 'Docs',
           },
           {to: '/api/modules', label: 'API', position: 'left'},
+          {to: '/v1-example', label: 'Example', position: 'left'},
           // {to: '/blog', label: 'Blog', position: 'left'},
           // {
           //   href: 'https://github.com/facebook/docusaurus',
@@ -119,8 +120,12 @@ plugins:[
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
+                label: 'Guides',
                 to: '/docs/intro',
+              },
+              {
+                label: 'API Reference',
+                to: '/api/modules',
               },
             ],
           },
@@ -128,29 +133,25 @@ plugins:[
             title: 'Community',
             items: [
               {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              },
-              {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
+                label: 'Developer\'s LinkedIn',
+                href: 'https://www.linkedin.com/in/sami-mishal-612261161/',
               },
             ],
           },
           {
             title: 'More',
             items: [
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
+              // {
+              //   label: 'Blog',
+              //   to: '/blog',
+              // },
               {
                 label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                href: 'https://github.com/Frost-ORM',
+              },
+              {
+                label: 'npm',
+                href: 'https://www.npmjs.com/package/@frost-orm/frost-web',
               },
             ],
           },
@@ -170,6 +171,12 @@ plugins:[
             className: 'code-block-error-line',
             line: 'highlight-error',
             block: {start: 'highlight-error-start', end: 'highlight-error-end'},
+
+          },
+          {
+            className: 'code-block-correct-line',
+            line: 'highlight-correct',
+            block: {start: 'highlight-correct-start', end: 'highlight-correct-end'},
 
           },
         ]

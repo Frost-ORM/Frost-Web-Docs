@@ -1,8 +1,8 @@
-[@frost/frost-web](../modules.md) / [Exports](../modules.md) / DisconnectOptions
+[@frost-orm/frost-web](../modules.md) / [Exports](../modules.md) / DisconnectOptions
 
-# Type alias: DisconnectOptions
+# Type alias: DisconnectOptions<T\>
 
-Ƭ **DisconnectOptions**: `undefined` \| ``"all"`` \| `Record`<`string`, ``"all"`` \| ``true`` \| `string` \| `string`[]\>
+Ƭ **DisconnectOptions**<`T`\>: `undefined` \| ``"all"`` \| `Record`<`KeysOfEntriesWithRelation`<`T`\>, ``"all"`` \| ``true`` \| `string` \| `string`[]\>
 
 The related instances to disconnect
 
@@ -55,3 +55,9 @@ Disconnect specific nodes
 ],
 }
 ```
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends [`FrostObject`](../classes/FrostObject.md) |

@@ -1,4 +1,4 @@
-[@frost/frost-web](../modules.md) / [Exports](../modules.md) / FrostApi
+[@frost-orm/frost-web](../modules.md) / [Exports](../modules.md) / FrostApi
 
 # Class: FrostApi<T\>
 
@@ -14,15 +14,15 @@
 
 - [add](FrostApi.md#add)
 - [delete](FrostApi.md#delete)
-- [find](FrostApi.md#find)
 - [findMany](FrostApi.md#findmany)
+- [findOne](FrostApi.md#findone)
 - [getAddMap](FrostApi.md#getaddmap)
 - [getDeleteMap](FrostApi.md#getdeletemap)
 - [getRelated](FrostApi.md#getrelated)
 - [getRelatedObservable](FrostApi.md#getrelatedobservable)
 - [getUpdateMap](FrostApi.md#getupdatemap)
-- [listen](FrostApi.md#listen)
-- [listenMany](FrostApi.md#listenmany)
+- [observeMany](FrostApi.md#observemany)
+- [observeOne](FrostApi.md#observeone)
 - [update](FrostApi.md#update)
 
 ## Methods
@@ -47,7 +47,7 @@ also connects the instance depending on the connect parameter
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `object` | `T` | The object instance containing the new changes |
-| `connect?` | `Record`<`string`, `string` \| `string`[]\> | see [ConnectOptions](../types/ConnectOptions.md). |
+| `connect?` | `Record`<`Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>, `string` \| `string`[]\> | see [ConnectOptions](../types/ConnectOptions.md). |
 
 #### Returns
 
@@ -73,39 +73,11 @@ Removes the Object from the database and disconnects related objects depending o
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `object` | `T` | The object instance to be deleted from the database (the object instance should be the one fetched from Frost or you can do it manually be constructing an instance) |
-| `disconnect?` | [`DisconnectOptions`](../types/DisconnectOptions.md) | see [DisconnectOptions](../types/DisconnectOptions.md). |
+| `disconnect?` | [`DisconnectOptions`](../types/DisconnectOptions.md)<`T`\> | see [DisconnectOptions](../types/DisconnectOptions.md). |
 
 #### Returns
 
 `Promise`<`void`\>
-
-___
-
-### find
-
-▸ **find**(`id`, `include?`): `Promise`<`T`\>
-
-Returns the object with the given id and containing the related instances with it (depending on the include parameter)
-
-Just like [listen](FrostApi.md#listen) but with promises instead of observables
-
-**`See`**
-
- - [listen](FrostApi.md#listen)
- - [Include](../types/Include.md).
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `id` | `string` | The object that you want to get the related objects from. (doesn't have to be an instantiated object could be the data map that was fetched manually ) |
-| `include?` | `string`[] | see [Include](../types/Include.md). |
-
-#### Returns
-
-`Promise`<`T`\>
-
-the object instance of the given id with related objects that were given in the include parameter
 
 ___
 
@@ -116,11 +88,11 @@ ___
 Just like the [query](https://firebase.google.com/docs/reference/js/database.md#query) function in the firebaseDB,
  but the first parameter is options for relations then is spread parameter like [query](https://firebase.google.com/docs/reference/js/database.md#query)
 
-Just like[listenMany](FrostApi.md#listenmany) but with promises instead of observables.
+Just like [observeMany](FrostApi.md#observemany) but with promises instead of observables.
 
 **`See`**
 
- - [listenMany](FrostApi.md#listenmany)
+ - [observeMany](FrostApi.md#observemany)
  - [Include](../types/Include.md).
  - [QueryConstraint](https://firebase.google.com/docs/reference/js/database.queryconstraint).
 
@@ -128,8 +100,8 @@ Just like[listenMany](FrostApi.md#listenmany) but with promises instead of obser
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `options` | `Object` | options for the observable |
-| `options.include?` | `string`[] | see [Include](../types/Include.md). |
+| `options` | `Object` | options for the query |
+| `options.include?` | `Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>[] | see [Include](../types/Include.md). |
 | `...queryConstraints` | `QueryConstraint`[] | see [QueryConstraint](https://firebase.google.com/docs/reference/js/database.queryconstraint). |
 
 #### Returns
@@ -137,6 +109,34 @@ Just like[listenMany](FrostApi.md#listenmany) but with promises instead of obser
 `Promise`<`T`[]\>
 
 the query results with related objects that were given in the include parameter
+
+___
+
+### findOne
+
+▸ **findOne**(`id`, `include?`): `Promise`<`T`\>
+
+Returns the object with the given id and containing the related instances with it (depending on the include parameter)
+
+Just like [observeOne](FrostApi.md#observeone) but with promises instead of observables
+
+**`See`**
+
+ - [observeOne](FrostApi.md#observeone)
+ - [Include](../types/Include.md).
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | `string` | The object that you want to get the related objects from. (doesn't have to be an instantiated object could be the data map that was fetched manually ) |
+| `include?` | `Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>[] | see [Include](../types/Include.md). |
+
+#### Returns
+
+`Promise`<`T`\>
+
+the object instance of the given id with related objects that were given in the include parameter
 
 ___
 
@@ -160,7 +160,7 @@ also connects the instance depending on the connect parameter.
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `object` | `T` | The object instance containing the new changes |
-| `connect?` | `Record`<`string`, `string` \| `string`[]\> | see [ConnectOptions](../types/ConnectOptions.md). |
+| `connect?` | `Record`<`Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>, `string` \| `string`[]\> | see [ConnectOptions](../types/ConnectOptions.md). |
 
 #### Returns
 
@@ -186,7 +186,7 @@ if the map is applied it removes the Object from the database and disconnects re
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `object` | `T` | The object instance to be deleted from the database (the object instance should be the one fetched from Frost or you can do it manually be constructing an instance) |
-| `disconnect?` | [`DisconnectOptions`](../types/DisconnectOptions.md) | see [DisconnectOptions](../types/DisconnectOptions.md) |
+| `disconnect?` | [`DisconnectOptions`](../types/DisconnectOptions.md)<`T`\> | see [DisconnectOptions](../types/DisconnectOptions.md) |
 
 #### Returns
 
@@ -215,7 +215,7 @@ Same as [getRelatedObservable](FrostApi.md#getrelatedobservable) but with promis
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `object` | `any` | The object that you want to get the related objects from. (doesn't have to be an instantiated object could be the data map that was fetched manually ) |
-| `include?` | `string`[] | see [Include](../types/Include.md). |
+| `include?` | `Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>[] | see [Include](../types/Include.md). |
 
 #### Returns
 
@@ -242,7 +242,7 @@ Use this if you have an object instance without the related instances you want.
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `object` | `any` | The object that you want to get the related objects from. (doesn't have to be an instantiated object could be the data map that was fetched manually ) |
-| `include?` | `string`[] | see [Include](../types/Include.md). |
+| `include?` | `Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>[] | see [Include](../types/Include.md). |
 | `listenToNestedChanges?` | [`ListenToNestedChanges`](../types/ListenToNestedChanges.md) | see [ListenToNestedChanges](../types/ListenToNestedChanges.md). |
 
 #### Returns
@@ -272,8 +272,8 @@ Returns a map containing the updates that could be passed to firebaseDB update f
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `object` | `T` | The object instance containing the new changes |
-| `connect?` | `Record`<`string`, `string` \| `string`[]\> | see [ConnectOptions](../types/ConnectOptions.md). |
-| `disconnect?` | [`DisconnectOptions`](../types/DisconnectOptions.md) | see [DisconnectOptions](../types/DisconnectOptions.md). |
+| `connect?` | `Record`<`Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>, `string` \| `string`[]\> | see [ConnectOptions](../types/ConnectOptions.md). |
+| `disconnect?` | [`DisconnectOptions`](../types/DisconnectOptions.md)<`T`\> | see [DisconnectOptions](../types/DisconnectOptions.md). |
 
 #### Returns
 
@@ -283,40 +283,9 @@ an object containing the update map
 
 ___
 
-### listen
+### observeMany
 
-▸ **listen**(`id`, `include?`, `listenToNestedChanges?`): `Observable`<`T`\>
-
-Returns an observable of the object with the given id and containing the related instances with it (depending on the include parameter)
-
-**`See`**
-
- - [Include](../types/Include.md).
- - [ListenToNestedChanges](../types/ListenToNestedChanges.md).
-
-**`Default Value`**
-
-listenToNestedChanges true
-
-#### Parameters
-
-| Name | Type | Default value | Description |
-| :------ | :------ | :------ | :------ |
-| `id` | `string` | `undefined` | The object that you want to get the related objects from. (doesn't have to be an instantiated object could be the data map that was fetched manually ) |
-| `include?` | `string`[] | `undefined` | see [Include](../types/Include.md). |
-| `listenToNestedChanges` | [`ListenToNestedChanges`](../types/ListenToNestedChanges.md) | `true` | see [ListenToNestedChanges](../types/ListenToNestedChanges.md). |
-
-#### Returns
-
-`Observable`<`T`\>
-
-an Observable of the object instance of the given id with related objects that were given in the include parameter
-
-___
-
-### listenMany
-
-▸ **listenMany**(`options`, ...`queryConstraints`): `Observable`<`T`[]\>
+▸ **observeMany**(`options`, ...`queryConstraints`): `Observable`<`T`[]\>
 
 Just like the [query](https://firebase.google.com/docs/reference/js/database.md#query) function in the firebaseDB,
 but with observables, also the first parameter is options for the observable then is spread parameter like [query](https://firebase.google.com/docs/reference/js/database.md#query)
@@ -333,7 +302,7 @@ options.debounceDuration 500
 
 **`Default Value`**
 
-options.listenToNestedChanges true
+options.listenToNestedChanges false
 
 #### Parameters
 
@@ -341,7 +310,7 @@ options.listenToNestedChanges true
 | :------ | :------ | :------ |
 | `options` | `Object` | options for the observable |
 | `options.debounceDuration?` | `number` | in Milliseconds. incase multiple changes happen to the query in short time, this will prevent the observable to emit too many times |
-| `options.include?` | `string`[] | see [Include](../types/Include.md). |
+| `options.include?` | `Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>[] | see [Include](../types/Include.md). |
 | `options.listenToNestedChanges?` | [`ListenToNestedChanges`](../types/ListenToNestedChanges.md) | see [ListenToNestedChanges](../types/ListenToNestedChanges.md). |
 | `...queryConstraints` | `QueryConstraint`[] | see [QueryConstraint](https://firebase.google.com/docs/reference/js/database.queryconstraint). |
 
@@ -350,6 +319,37 @@ options.listenToNestedChanges true
 `Observable`<`T`[]\>
 
 an Observable of the query results with related objects that were given in the include parameter
+
+___
+
+### observeOne
+
+▸ **observeOne**(`id`, `include?`, `listenToNestedChanges?`): `Observable`<`T`\>
+
+Returns an observable of the object with the given id and containing the related instances with it (depending on the include parameter)
+
+**`See`**
+
+ - [Include](../types/Include.md).
+ - [ListenToNestedChanges](../types/ListenToNestedChanges.md).
+
+**`Default Value`**
+
+listenToNestedChanges false
+
+#### Parameters
+
+| Name | Type | Default value | Description |
+| :------ | :------ | :------ | :------ |
+| `id` | `string` | `undefined` | The object that you want to get the related objects from. (doesn't have to be an instantiated object could be the data map that was fetched manually ) |
+| `include?` | `Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>[] | `undefined` | see [Include](../types/Include.md). |
+| `listenToNestedChanges` | [`ListenToNestedChanges`](../types/ListenToNestedChanges.md) | `false` | see [ListenToNestedChanges](../types/ListenToNestedChanges.md). |
+
+#### Returns
+
+`Observable`<`T`\>
+
+an Observable of the object instance of the given id with related objects that were given in the include parameter
 
 ___
 
@@ -372,8 +372,8 @@ preforms the updates on the object instance and dis/connects relations depending
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `object` | `T` | The object instance containing the new changes |
-| `connect?` | `Record`<`string`, `string` \| `string`[]\> | see [ConnectOptions](../types/ConnectOptions.md). |
-| `disconnect?` | [`DisconnectOptions`](../types/DisconnectOptions.md) | see [DisconnectOptions](../types/DisconnectOptions.md). |
+| `connect?` | `Record`<`Exclude`<`KeysOfEntriesWithType`<`T`, `Function`\>, ``"serialize"`` \| ``"getConnectedKeys"`` \| ``"getAllConnectedKeys"`` \| ``"flatten"``\>, `string` \| `string`[]\> | see [ConnectOptions](../types/ConnectOptions.md). |
+| `disconnect?` | [`DisconnectOptions`](../types/DisconnectOptions.md)<`T`\> | see [DisconnectOptions](../types/DisconnectOptions.md). |
 
 #### Returns
 

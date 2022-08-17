@@ -3,8 +3,8 @@ import React from 'react';
 
 export const createClass = <CodeBlock language="ts">{`
 @FrostEntity({collectionPath:"/users"})
-class User extends FrostObject{
-    id!:string
+class User extends FrostObject<User>{
+    id?:string
     name!:string
     userType!: "Customer" | "Admin"
     birthday?:string
@@ -15,8 +15,8 @@ class User extends FrostObject{
 //wrong
 export const specialConstructor = <CodeBlock language="ts">{`
 @FrostEntity({collectionPath:"/users"})
-class User extends FrostObject{
-    id!:string
+class User extends FrostObject<User>{
+    id?:string
     name!:string
     userType!: "Customer" | "Admin"
     birthday?:string
@@ -39,7 +39,7 @@ class UserApi extends FrostApi<User>{}
 
 export const fullExample = <CodeBlock language="ts">{`
 @FrostEntity({collectionPath:"/users"})
-class User extends FrostObject{
+class User extends FrostObject<User>{
     id!:string
     name!:string
     userType!: "Customer" | "Admin"

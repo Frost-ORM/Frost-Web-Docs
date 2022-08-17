@@ -2,7 +2,7 @@
 
 # Function: FrostEntity
 
-▸ **FrostEntity**(`options`): `PropertyDecorator`
+▸ **FrostEntity**(`options`): <T\>(`constructor`: `T`) => `void`
 
 This decorator allows you to declare a class as a node in FirebaseDB and provide the path for it 
 
@@ -26,4 +26,22 @@ class User extends FrostObject {
 
 #### Returns
 
-`PropertyDecorator`
+`fn`
+
+▸ <`T`\>(`constructor`): `void`
+
+##### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends (...`args`: `any`[]) => [`FrostObject`](../classes/FrostObject.md)<{ `id?`: `string`  }\> |
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `constructor` | `T` |
+
+##### Returns
+
+`void`

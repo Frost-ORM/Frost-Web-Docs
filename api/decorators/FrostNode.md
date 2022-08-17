@@ -26,7 +26,7 @@ class UsersApi extends FrostApi<User> {
 
 | Name | Type |
 | :------ | :------ |
-| `T` | extends [`FrostObject`](../classes/FrostObject.md)<`T`\> |
+| `T` | extends [`FrostObject`](../classes/FrostObject.md)<{ `id?`: `string`  }, `T`\> |
 | `I` | extends [`IFrostObject`](../types/IFrostObject.md)<`T`\> |
 
 #### Parameters

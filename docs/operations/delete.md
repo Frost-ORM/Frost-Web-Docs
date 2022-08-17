@@ -4,85 +4,72 @@ sidebar_position: 4
 
 # Delete
 
-Let's translate `docs/intro.md` to French.
+## Node Removal
 
-## Configure i18n
+To Simply delete an instance relations:
 
-Modify `docusaurus.config.js` to add support for the `fr` locale:
+- Pass the instance you want to delete to [FrostApi.delete()](/api/classes/FrostApi#delete).
+- The second parameter is DisconnectOptions. It defaults to `"all"`, So it disconnects all relations unless you supply an empty map `{}` or a specific map you require. for mored details Check the [Disconnect](#disconnect) Section
 
-```js title="docusaurus.config.js"
-module.exports = {
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'fr'],
-  },
-};
+```ts title=src/index.ts
+import { User } from "src/data/user"
+import { Profile } from "src/data/profile"
+import { FrostApp } from "src/data/frost"
+
+...
+
+const { id: userId } = (await FrostApp.users.delete(user))
+
+
 ```
 
-## Translate a doc
+## Disconnect
 
-Copy the `docs/intro.md` file to the `i18n/fr` folder:
+This is similar to [`Disconnect`](/docs/operations/update#disconnect) in the [`Update`](/docs/operations/update) Section. So you don't have to re-read it if you're already familiar with it. The only difference is that here it defaults to `"all"`
 
-```bash
-mkdir -p i18n/fr/docusaurus-plugin-content-docs/current/
+To Specify the relations you want to disconnect along with the delete, all you have to do is:
 
-cp docs/intro.md i18n/fr/docusaurus-plugin-content-docs/current/intro.md
-```
-
-Translate `i18n/fr/docusaurus-plugin-content-docs/current/intro.md` in French.
-
-## Start your localized site
-
-Start your site on the French locale:
-
-```bash
-npm run start -- --locale fr
-```
-
-Your localized site is accessible at [http://localhost:3000/fr/](http://localhost:3000/fr/) and the `Getting Started` page is translated.
-
+- When you pass the instance to the delete function, pass a second parameter of the type [DisconnectOptions](/api/types/DisconnectOptions)
+  - The possible values for [DisconnectOptions](/api/types/DisconnectOptions) are:
+  - The string `"all"`, this will disconnect all relations
+  - A map between:
+    - `[property name with the relation you want to connect]`
+    - and one of the following options:
+    - The string `"all"` or the boolean `true` to disconnect all connected instances in the selected relations (e.g: `{ posts: 'all', profile: true }`)
+    - ID(s) of the instance(s) you want to disconnect (e.g: `{ posts: ['...','...',...], profile: "..." }`)
+  
 :::caution
+If the property name in the [DisconnectOptions](/api/types/DisconnectOptions) map is referring to a property with an array type (ie; many). then the value should be an array of the ids. otherwise (ie; One) then the value can be a single string.
 
-In development, you can only use one locale at a same time.
+Please check out [DisconnectOptions](/api/types/DisconnectOptions), it contains more detailed examples.
+:::  
 
+:::info
+***Reminder:*** The second parameter (disconnect options) defaults to `"all"`
 :::
 
-## Add a Locale Dropdown
+```ts title=src/index.ts showLineNumbers
+import { User } from "src/data/user"
+import { Profile } from "src/data/profile"
+import { Post } from "src/data/post"
+import { FrostApp } from "src/data/frost"
 
-To navigate seamlessly across languages, add a locale dropdown.
+const user = (await FrostApp.users.find(userId))
 
-Modify the `docusaurus.config.js` file:
+//highlight-start
+// Example 1: this will disconnect all relations
+await FrostApp.users.delete(user)
+//Or
+await FrostApp.users.delete(user,"all")
 
-```js title="docusaurus.config.js"
-module.exports = {
-  themeConfig: {
-    navbar: {
-      items: [
-        // highlight-start
-        {
-          type: 'localeDropdown',
-        },
-        // highlight-end
-      ],
-    },
-  },
-};
-```
+// Example 2: this will disconnect nothing
+await FrostApp.users.delete(user,{})
 
-The locale dropdown now appears in your navbar:
+// Example 3: this will disconnect all posts and profiles
+await FrostApp.users.delete(user,{ posts: "all", profile: true})
 
-![Locale Dropdown](./img/localeDropdown.png)
+// Example 4: this will disconnect the specific posts in the list and the single profile
+await FrostApp.users.delete(user,{ posts: ["...","...",...], profile: "..."})
+//highlight-end
 
-## Build your localized site
-
-Build your site for a specific locale:
-
-```bash
-npm run build -- --locale fr
-```
-
-Or build your site to include all the locales at once:
-
-```bash
-npm run build
 ```

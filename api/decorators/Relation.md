@@ -12,7 +12,7 @@ This decorator allows you to define the relations between the properties of [Fro
 The Relation is defined on both sides but one side is the main side and the other is secondary.
 
 In case of symmetric relation the order of the sides doesn't matter but with ***One-to-Many*** the main side should be the `One` side.
-The main side should have the relation value in the options while the secondary shouldn't have it.
+The main side should have the master property equal true.
 :::
 
 **`Example`**

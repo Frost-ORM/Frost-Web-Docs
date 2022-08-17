@@ -5,34 +5,44 @@ description: Defining A class that represents a node in the firebase db tree
 import {createClass,instantiation,createApi,specialConstructor} from '@site/src/snippets/fundamentals/create-a-node.tsx';
 
 # Create a node
+
+## Define the data model
+
 ***To define a Frost Entity (Object), You have to:***
+
 - Create A class with the name of the Entity you desire. In this case it's "User"
 - This Class must extend the [FrostObject](/api/classes/FrostObject) class.
+  - [FrostObject](/api/classes/FrostObject) takes a generic parameter of the class itself (`class A extends FrostObject<A>`), this will extract the type for the constructor.
 - Annotate the class with the [FrostEntity](/api/decorators/FrostEntity) decorator.
  Pass the options([FrostEntityDecoratorOptions](/api/types/FrostEntityDecoratorOptions)) that you desire to the decorator.
   So far the only available option is the collectionPath which is the name of the node that will contain all the instances for this entity. In this case its `/users/`
 :::info
-Since you don't have to define a constructor, then Typescript will throw an error because it cannot detect the intialization of the object properties. 
-So you'll have to either use `?` for optional parameters or `!` for non-optional parameters to let Typescript know that they'll be initiallized 
+Since you don't have to define a constructor, then Typescript will throw an error because it cannot detect the initialization of the object properties.
+So you'll have to either use `?` for optional parameters or `!` for non-optional parameters to let Typescript know that they'll be initialized.
+
+All (FrostObject)s have the id property, you don't have to define. If you want to define it yourself, you might need to add the `override` modifier; depending on the Typescript version and the compile options.
 :::
 <>{createClass}</>
 
-
 ## Instantiation
+
 To create an instance from the Entity
 <>{instantiation}</>
 
 ### Available methods
-Since the Entity extends FrostObject it inherits a few usefull [methods](/api/classes/FrostObject#methods) from it. Please check them out they might be of help to you.
+
+Since the Entity extends FrostObject it inherits a few useful [methods](/api/classes/FrostObject#methods) from it. Please check them out they might be of help to you.
 <!-- :::warning
 if you want to define your you constructor then you have to pass the data map (plain object) with all the properties from the node in the database as the first parameter to the `super` call
 :::
 <>{specialConstructor}</> -->
 
-# Define the API
+## Define the API
+
 ***To define a Frost API, You have to:***
+
 - Create A class with the name you desire. In this case it's "UserApi"
 - This Class must extend the [FrostApi](/api/classes/FrostApi) class. and the Entity class must be passed to the generic type.
-- Annotate the class with the [FrostNode](/api/decorators/FrostNode) decorator. Pass the Corresponding Entity to the deocrator.
+- Annotate the class with the [FrostNode](/api/decorators/FrostNode) decorator. Pass the Corresponding Entity to the decorator.
 
 <>{createApi}</>

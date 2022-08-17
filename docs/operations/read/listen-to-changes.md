@@ -4,85 +4,115 @@ sidebar_position: 2
 
 # Listen to changes
 
-Let's translate `docs/intro.md` to French.
+## Include
 
-## Configure i18n
+Just Like [Include](/docs/operations/read/once#include) in Read Data Once
 
-Modify `docusaurus.config.js` to add support for the `fr` locale:
+## ListenToNestedChanges
 
-```js title="docusaurus.config.js"
-module.exports = {
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'fr'],
-  },
-};
-```
+This [ListenToNestedChanges](/api/types/ListenToNestedChanges) Options Parameter determines which types of relations will be Observed.
+Possible Values:
 
-## Translate a doc
+- `Boolean`:
+  - `true` will not listen to changes in included related instances
+  - `false` will not listen to changes in included related instances
+- Map of `{ [RelationType]: boolean }`, so  you can choose to listen to a specific type of relation.
 
-Copy the `docs/intro.md` file to the `i18n/fr` folder:
+Let's Say you're observing a `user` instance with connected profile and posts
 
-```bash
-mkdir -p i18n/fr/docusaurus-plugin-content-docs/current/
+ ```json
+//  Example 1: listen to all changes
+ true
 
-cp docs/intro.md i18n/fr/docusaurus-plugin-content-docs/current/intro.md
-```
+//  Example 2: listen to all changes in One to One only
+{
+    RelationTypes.ONE_TO_ONE:true,
+    RelationTypes.ONE_TO_MANY:false,
+    RelationTypes.MANY_TO_MANY:false,
+}
+ ```
 
-Translate `i18n/fr/docusaurus-plugin-content-docs/current/intro.md` in French.
+:::danger
+Be careful in case of Many to Many, each nested child will use an observer to the server. Firebase has constraints on the number of active connections especially in the free tier.
 
-## Start your localized site
-
-Start your site on the French locale:
-
-```bash
-npm run start -- --locale fr
-```
-
-Your localized site is accessible at [http://localhost:3000/fr/](http://localhost:3000/fr/) and the `Getting Started` page is translated.
-
-:::caution
-
-In development, you can only use one locale at a same time.
-
+Also Be careful in case of listening to nested changes in case of queries, if the query returns a long list then each item of the list will have observer on included relations if they're enabled through [ListenToNestedChanges](/api/types/ListenToNestedChanges). Listening to original queries is not a problem but too many sub-queries may increase database costs.
 :::
 
-## Add a Locale Dropdown
+## Observe One
 
-To navigate seamlessly across languages, add a locale dropdown.
+This Similar to [Fetch One](/docs/operations/read/once#fetch-one) but with an extra third argument [ListenToNestedChanges](#listentonestedchanges)
+To Observe a single instance:
 
-Modify the `docusaurus.config.js` file:
+- Pass the instance ID to the first argument of [FrostApi.observeOne](/api/classes/FrostApi#observeone)
+- The second argument is an [Include](#include) Array
+- The third argument is an [ListenToNestedChanges](#ListenToNestedChanges). ***defaults to `false`***
 
-```js title="docusaurus.config.js"
-module.exports = {
-  themeConfig: {
-    navbar: {
-      items: [
-        // highlight-start
-        {
-          type: 'localeDropdown',
-        },
-        // highlight-end
-      ],
+```typescript
+userApi.observeOne(
+    '-N80Y3gwS6TLcTC6Q-vF',
+    ['profile','posts'],
+    {
+        RelationTypes.ONE_TO_ONE:true,
+        RelationTypes.ONE_TO_MANY:false,
+        RelationTypes.MANY_TO_MANY:false,
+    }
+).subscribe(
+    (user:User) => {
+        // to get profile 
+        let userProfile = user.profile?.()
+        let userPosts = user.posts?.()
+
+        // to get a flat object
+        let data = user.flatten()
+    }
+)
+
+
+```
+
+## Observe Query (Multiple)
+
+This Similar to [Query Multiple](/docs/operations/read/once#query-multiple) but with extra options in the first argument
+To preform a Query:
+
+- Use the [FrostApi.observeMany](/api/classes/FrostApi#observemany) function:
+  - The first argument is an options object:
+    - `include`: pass the [Include](#include) array
+    - `listenToNestedChanges`: pass the [ListenToNestedChanges](#listentonestedchanges). ***defaults to `false`***
+    - `debounceDuration`:
+      - Debounce Duration in Milliseconds. incase multiple changes happen to multiple sub-queries in short time, this will prevent the observable from emitting too many times.
+      - optional defaults to `500ms`
+  - The second argument is a rest (spread) argument representing the firebase [Query Constraints](https://firebase.google.com/docs/reference/js/database.queryconstraint). These are exactly the parameters that should be passed to the [query](https://firebase.google.com/docs/reference/js/database.md#query) firebase function
+    - ***If no query constraints are passed then It will fetch all subnodes.***
+
+```typescript
+// Example 1: observe all users with no nested observing
+userApi.observeMany(null).subscribe(
+    (users: User[])=>{
+        ...
+    }
+)
+
+// Example 2: observe all users and observe users posts
+userApi.observeMany({ include: ['posts'],listenToNestedChanges:true }).subscribe(
+    (users: User[])=>{
+        ...
+    }
+)
+
+//Example 3: observe all users with the type "CUSTOMER" with their posts also observed (for custom queries like this you should add an index manually to improve performance and reduce costs)
+userApi.observeMany(
+
+    { 
+        include: ['posts'],
+        listenToNestedChanges:true
     },
-  },
-};
-```
+    orderByChild("userType"),
+    equalTo("CUSTOMER"),
 
-The locale dropdown now appears in your navbar:
-
-![Locale Dropdown](./img/localeDropdown.png)
-
-## Build your localized site
-
-Build your site for a specific locale:
-
-```bash
-npm run build -- --locale fr
-```
-
-Or build your site to include all the locales at once:
-
-```bash
-npm run build
+).subscribe(
+    (users: User[])=>{
+        ...
+    }
+)
 ```

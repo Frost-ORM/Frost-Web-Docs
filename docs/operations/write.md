@@ -1,55 +1,58 @@
 ---
 sidebar_position: 2
+title: Write (Add/Insert)
 ---
 
-# Insert
+This section will describe [FrostApi.add()](/api/classes/FrostApi#add) function. This Function is used to push a new instance of the entity to the entity list and connect it with other entities depending on the relations.
 
-Docusaurus can manage multiple versions of your docs.
+## Regular Data Insert
 
-## Create a docs version
+To Simply Add a new instance, all you have to do is:
 
-Release a version 1.0 of your project:
+- Create the instances as in `line 5` in the following code snippet
+- As in `line 7` Pass the newly created instance to the `add` function in the corresponding API from the FrostApp instance (in this case the FrostApp has the shape `{firebaseApp:FirebaseApp, users:UserApi, profiles:ProfileApi}`)
+- The add function returns an object with the shape `{id:string}`, the `id` is the id of the newly created instance
 
-```bash
-npm run docusaurus docs:version 1.0
+:::info
+if you want the instance to have a specific id, then set it in the object instance before passing it to the add function. otherwis the id will be the id returned from the firebase [`push`](https://firebase.google.com/docs/reference/js/database#push) function.
+:::
+
+```ts title=src/index.ts showLineNumbers
+import { User } from "src/data/user"
+import { Profile } from "src/data/profile"
+import { FrostApp } from "src/data/frost"
+
+const user = new User({...})
+
+const { id } = (await FrostApp.users.add(user))
 ```
 
-The `docs` folder is copied into `versioned_docs/version-1.0` and `versions.json` is created.
+## Connect
 
-Your docs now have 2 versions:
+To Simply Add a new instance and also connect it to other instances based on the relations, all you have to do is: (We'll continue with the same example from above)
 
-- `1.0` at `http://localhost:3000/docs/` for the version 1.0 docs
-- `current` at `http://localhost:3000/docs/next/` for the **upcoming, unreleased docs**
+- Create the instance as in `line 9` in the following code snippet.
+- As in `line 11`, when you pass the instance to the add function, you can also pass a second parameter of the type [ConnectOptions](/api/types/ConnectOptions)
+  - The connect option is basically a map between the <br/> `{ [property name with the relation you want to connect] : (id of the instance(s) you want to connect) }`.
+  
+:::caution
+If the property name in the [ConnectOptions](/api/types/ConnectOptions) map is referring to a property with an array type (ie; many). then the value should be an array of the ids. otherwise (ie; One) then the value can be a single string.
+:::
 
-## Add a Version Dropdown
+***In the example below, we create and add the user, then we create the profile for the user and when we add it we pass the `userId` in the ConnectOptions in the second parameter***
 
-To navigate seamlessly across versions, add a version dropdown.
+```ts title=src/index.ts showLineNumbers
+import { User } from "src/data/user"
+import { Profile } from "src/data/profile"
+import { FrostApp } from "src/data/frost"
 
-Modify the `docusaurus.config.js` file:
+const user = new User({...})
 
-```js title="docusaurus.config.js"
-module.exports = {
-  themeConfig: {
-    navbar: {
-      items: [
-        // highlight-start
-        {
-          type: 'docsVersionDropdown',
-        },
-        // highlight-end
-      ],
-    },
-  },
-};
+const { id: userId } = (await FrostApp.users.add(user))
+
+//highlight-start
+const profile = new Profile({...})
+
+const {id:profileId} = await FrostApp.profiles.add(profile,{'user':userId})
+//highlight-end
 ```
-
-The docs version dropdown appears in your navbar:
-
-![Docs Version Dropdown](./img/docsVersionDropdown.png)
-
-## Update an existing version
-
-It is possible to edit versioned docs in their respective folder:
-
-- `versioned_docs/version-1.0/hello.md` updates `http://localhost:3000/docs/hello`
-- `docs/hello.md` updates `http://localhost:3000/docs/next/hello`

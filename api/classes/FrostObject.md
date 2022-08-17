@@ -1,6 +1,12 @@
 [@frost/frost-web](../modules.md) / [Exports](../modules.md) / FrostObject
 
-# Class: FrostObject
+# Class: FrostObject<C\>
+
+## Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `C` | { `id?`: `string`  } |
 
 ## Table of contents
 
@@ -25,12 +31,19 @@
 
 ### constructor
 
-• **new FrostObject**(...`args`)
+• **new FrostObject**<`C`\>(`data`, ...`args`)
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `C` | { `id?`: `string`  } |
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
+| `data` | `OmitAllFunctions`<`C`\> & `Record`<`any`, `any`\> |
 | `...args` | `any`[] |
 
 ## Properties
@@ -39,7 +52,7 @@
 
 • `Optional` **id**: `string`
 
-all FrostObjects should have the id property
+all FrostObjects should have the id property, you can override it in the derived class
 
 ___
 

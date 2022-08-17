@@ -1,8 +1,8 @@
-[@frost/frost-web](../modules.md) / [Exports](../modules.md) / ConnectOptions
+[@frost-orm/frost-web](../modules.md) / [Exports](../modules.md) / ConnectOptions
 
-# Type alias: ConnectOptions
+# Type alias: ConnectOptions<T\>
 
-Ƭ **ConnectOptions**: `Record`<`string`, `string` \| `string`[]\> \| `undefined`
+Ƭ **ConnectOptions**<`T`\>: `Record`<`KeysOfEntriesWithRelation`<`T`\>, `string` \| `string`[]\> \| `undefined`
 
 The related instances to connect
 
@@ -51,3 +51,9 @@ One-to-Many (Many Side)
 	"author":"-N8ZU2qq5erVSvauDtuR",
 }
 ```
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends [`FrostObject`](../classes/FrostObject.md) |

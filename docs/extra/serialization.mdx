@@ -1,0 +1,78 @@
+---
+sidebar_position: 1
+description: Defining the functions for (de)serializing nested data
+---
+
+# Serialization
+If you have nested data that requires (de)serialization when pulled/pushed to the database, then you can use [Serialize](/api/decorators/Serialize) Decorator.
+
+- The Decorator takes an argument of the type [SerializeOptions](/api/types/SerializeOptions):
+    - `allowNullCall`: an `optional boolean` that decides whether the serialization will occur even if the data is null or undefined
+    - `serialize`: (Type: [Serializer](/api/types/Serializer))
+        -  It's a function with two arguments that returns the serialized data (should be any JSON value [ boolean, string, number, array, object, null]).
+        -  The arguments are:
+            - The current value of the property to be serialized
+            - The current object instance (incase the serialization depends on other properties)
+    - `deserialize`: (Type: [Deserializer](/api/types/Deserializer))
+        -  It's a function with two arguments that returns the deserialized data to be assigned to the property in the current object instance
+        -  The arguments are:
+            - The value of the property from the database (will be any JSON value [ boolean, string, number, array, object, null (if allowNullCall is true)])
+            - The whole data object node from the database (incase the deserialization depends on other properties).
+
+- The Decorator takes two generic types, this allows for type safety when checking the (de)serialize functions:
+    -  `T` : The Type of the current class.
+    -  `P` : The Type of the current property that the Serialize Decorator is used on.
+
+## Example: Date Serialization using Moment.js
+
+:::info
+Frost provides a `DateSerializer` so you don't have to define your own. It serializes the date using Date API in Javascript, so the date is serialized to ISO string in the database.
+:::
+
+```ts
+import moment from "moment"
+
+@FrostEntity({collectionPath:"/users"})
+class User extends FrostObject<User>{
+    id?:string
+    name!:string
+    userType!: "Customer" | "Admin"
+
+    @Serialize<User,Date>(
+        {
+            serialize:(value) => moment(value).format("YYYY-MM-DD"),
+            deserialize:(value) => moment(value,"YYYY-MM-DD").toDate()
+        }
+    )
+    birthday?:Date
+
+}
+```
+
+## Defining a custom Serializer
+
+You Can define your own serializer once and use it in multiple places, just as in the following examples:
+
+```ts
+import moment from "moment"
+
+export const MomentDateSerializer = <T>()=> (
+    Serialize<T,Date>(
+        {
+            serialize:(value) => moment(value).format("YYYY-MM-DD"),
+            deserialize:(value) => moment(value,"YYYY-MM-DD").toDate()
+        }
+    )
+)
+
+export const MomentDateSerializerWithNull = <T>(default:Date = new Date())=> (
+    Serialize<T,Date>(
+        {
+            serialize:(value) => moment(value ?? default).format("YYYY-MM-DD"),
+            deserialize:(value) => moment(value ?? default,"YYYY-MM-DD").toDate(),
+            allowNullCall:true
+        }
+    )
+)
+
+```
