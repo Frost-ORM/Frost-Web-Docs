@@ -21,16 +21,27 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
+    title: 'Code Generation',
+    image: <img src={('img/code-gen.png')} className={styles.featureImage} role="img"/>,
+    description: (
+      <>
+        Frost has a schema language that is used to define the data models and their relations to generate the code incase if you don't want to use annotations. <br/>
+        This will maximize compatibility with different versions of JS.
+      </>
+    ),
+  },
+  {
     title: 'Focus on What Matters',
     image: <img src={('img/relations.jpg')} className={styles.featureSvg} role="img"/>,
     description: (
       <>
-        Frost utilizes decorators to define all the relations easily.<br/>
+        Frost allows to utilize either decorators or codegen to define all the relations easily.<br/>
         Frost lets you focus on object shapes and relations between them.
          <br/> Let Frost Handle the rest
       </>
     ),
   },
+  
   {
     title: 'Reactive',
     Svg: require('@site/static/img/reactive.svg').default,
@@ -65,7 +76,7 @@ export default function HomepageFeatures(): JSX.Element {
   return (
     <section className={styles.features}>
       <div className="container">
-        <div className="row">
+        <div className={clsx('row',styles.featuresRow)}>
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />
           ))}

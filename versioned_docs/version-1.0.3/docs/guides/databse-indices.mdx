@@ -1,0 +1,28 @@
+---
+sidebar-position: 3
+description: A helper function that return the Json string for the databse rules
+title: Database Indices
+---
+
+# Database Indices (.indexOn)
+
+One to Many Relations require Indices to be placed in Firebase DB rules.
+Instead of writing the indecies yourself, We have created a helper function that returns the JSON string that should be added to the Firebase DB rules
+
+After You initiallize the Frost App call the [getIndices](../../api/classes/Frost#getindices) static function From the [Frost](../../api/classes/Frost) class.
+
+```ts
+const firebaseConfig = {
+  ...
+};
+
+export const FrostApp = Frost.initialize(firebaseConfig,{
+...
+})
+
+//highlight-start
+const indices = Frost.getIndices()
+//do anything you want with the string
+console.log(indices)
+//highlight-end
+```

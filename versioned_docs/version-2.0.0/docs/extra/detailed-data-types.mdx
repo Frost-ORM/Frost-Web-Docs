@@ -1,0 +1,192 @@
+---
+sidebar_position: 1
+description: Detailing the generated data types for each node model.
+---
+
+# Detailed Data Types
+The portion of the schema bellow we'll be used to explain the Data types.
+```prisma
+model Student {
+    @@node(path:"/students")
+    name string
+    year  SchoolYear
+    birthday Date?
+    email string?
+
+    courses Course[] @Relation()
+    club Club @Relation()
+
+}
+
+enum SchoolYear {
+    FRESHMAN = "FRESHMAN"
+    SOPHOMORE = "SOPHOMORE"
+    JUNIOR = "JUNIOR"
+    SENIOR = "SENIOR"
+}
+
+
+model Course {
+    ...
+
+    students Student[] @Relation()
+
+    ...
+
+}
+
+model Club {
+    ...
+    
+    members Student[] @Relation()
+
+    ...
+}
+
+
+```
+## Generated Types
+- All Types and Enums defined in the schema will be generated with the same names.
+- A variety of types will be generated for each model, as described below:
+
+### "Basic Model" Type
+This Type describes the base node shape without any "properties from connected relation" or node metadata. ***It extends [FrostObject](../../api/types/FrostObject)***
+```ts
+type Student = FrostObject & {
+    name: string;
+    year: SchoolYear;
+    birthday?: Date;
+    email?: string;
+};
+```
+### FrostMetadata Related Types
+
+#### "Model FrostMetadata" Type 
+This Type describes the shape of the frost metadata in the node for the specific model.
+```ts
+// This Model Has no one-to-one relations
+type StudentFrostMetadata = {
+    __frost__: {
+        'one_to_many': {
+            club?: OneToManyMetadata | null;
+        };
+        'many_to_many': {
+            courses?: ManyToManyMetadata | null;
+        };
+    };
+};
+```
+#### "Model With FrostMetadata" Type
+This Type is the combination of the Base Model and the Model Metadata types. ***and it actually describes the true shape of the node in the database, since all nodes will have the metadata inside it***
+```ts
+type StudentWithMetadata = Student & Partial<StudentFrostMetadata>;
+```
+
+### Include Related Types
+
+#### "Each Include of The Model" Types
+An Include type is generated for each relation in the model, this type represents the property inside the object when a certain relation is included.
+The type will be a `Record` in case of many and single instance incase of one.
+```ts
+type StudentIncludeCourse = {
+    courses?: Record<string, CourseWithMetadata>;
+};
+type StudentIncludeClub = {
+    club?: ClubWithMetadata;
+};
+```
+
+#### "IncludeAll" Types
+This Type is the combination of All the generated include types from the previous section.
+```ts
+type StudentIncludeAll = StudentIncludeCourse & StudentIncludeClub;
+```
+
+### "FullModel" Type
+This Type is the combination of The ModelWithMetada & IncludeAll. and it describes the returned data when all relations are included
+```ts
+type StudentFullModel = StudentWithMetadata & StudentIncludeAll;
+```
+
+### Properties Keys Related Types
+#### Base Properties
+This type describes the properties names without relations (ie; the properties of the base model)
+```ts
+type StudentPropertiesKeys = "name" | "year" | "birthday" | "email" | "courses" | "club";
+```
+
+#### Properties With Relations
+These types describe the properties names with relations.
+
+```ts
+// This Model Has no one-to-one relations
+//type StudentOneToOneRelationsFieldsKeys = ...; if the model has one to one
+
+type StudentManyToManyRelationsFieldsKeys = "courses";
+
+type StudentOneToManyRelationsMasterFieldsKeys = "club";
+type StudentOneToManyRelationsSalveFieldsKeys = never;
+type StudentOneToManyRelationsFieldsKeys = "club";
+
+type StudentRelationsFieldsKeys = StudentManyToManyRelationsFieldsKeys | StudentOneToManyRelationsFieldsKeys;
+
+type StudentRelationsFieldsKeysByType = {
+    // one_to_one: ...; if the model has one to one
+    many_to_many: StudentManyToManyRelationsFieldsKeys;
+    one_to_many: StudentOneToManyRelationsFieldsKeys;
+    one_to_many_master_fields: StudentOneToManyRelationsMasterFieldsKeys;
+    one_to_many_slave_fields: StudentOneToManyRelationsSalveFieldsKeys;
+};
+```
+
+
+
+## Auto Mapped Types 
+<!-- TODO Add more details-->
+
+### [IncludeOptions](../../api/types/includeoptions) Type
+This Type determine the shape of the include options map to be passed to fetching and querying functions in [FrostDelegate](../../api/classes/frostdelegate) (findOne,observeOne,findMultiple,observeMultiple,findMany,observeMany)
+
+```ts
+type StudentIncludeOptions = IncludeOptions<StudentRelationsFieldsKeys>;
+```
+
+### [ConnectOptions](../../api/types/connectoptions)/[DisconnectOptions](../../api/types/disconnectoptions) Type
+
+These Types determine the shape of the connect map to be passed to editing functions in [FrostDelegate](../../api/classes/frostdelegate) (add,update,delete)
+
+```ts
+type StudentConnectOptions = ConnectOptions<StudentRelationsFieldsKeysByType>;
+type StudentDisconnectOptions = DisconnectOptions<StudentRelationsFieldsKeysByType>;
+```
+
+### [FetchReturnType](../../api/types/fetchreturntype)
+
+- This Type is ***Returned*** from all the ***Fetching*** & querying functions in FrostDelegate. Hence the name, [FetchReturnType](../../api/types/fetchreturntype).
+- This Type Determines the final shape of returned data depending on the [IncludeOptions](#includeoptions) passed to the fetch function.
+
+:::info
+The fetch and query functions don't directly return the [FetchReturnType](../../api/types/fetchreturntype). But they return a type that includes it.
+For example: incase of a findMany or findMultiple the return type would be  `Promise< Record<string,FetchReturnType> >`
+:::
+
+## Indexed Access Types
+For Each model, The main types are grouped in one type. This allows the user to use index access(`[]`) on the grouped type.
+```ts
+type StudentTypes = {
+    FullModel: StudentFullModel;
+    Model: Student;
+    ModelWithMetadata: StudentWithMetadata;
+    IncludeAll: StudentIncludeAll;
+    RelationsFieldsKeys: StudentRelationsFieldsKeys;
+    RelationsFieldsKeysByType: StudentRelationsFieldsKeysByType;
+    PropertiesKeys: StudentPropertiesKeys;
+    FrostMetadata: StudentFrostMetadata;
+    ConnectOptions: StudentConnectOptions;
+    DisconnectOptions: StudentDisconnectOptions;
+    IncludeOptions: StudentIncludeOptions;
+};
+
+// For example: To access StudentIncludeAll
+StudentTypes["IncludeAll"]
+```

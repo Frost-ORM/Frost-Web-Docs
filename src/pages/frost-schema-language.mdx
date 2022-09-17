@@ -1,0 +1,280 @@
+---
+toc_min_heading_level: 2
+toc_max_heading_level: 6
+---
+# Frost Schema Language (FSL)
+
+## Structure
+
+
+### Syntax
+
+In this section we'll define the essential parts that comprise the FSL syntax
+
+#### Keywords
+
+In FSL we have three main keywords
+
+-   `model` used to [define a data model](#defining-models).
+-   `enum` used to [define an enum](#defining-enums).
+-   `type` used to [define a data type (struct)](#defining-types).
+
+#### Comments
+
+FSL supports double-slash single line comments, you can write comments at the beging and end of each line or in seperate lines.
+
+```prisma
+// This is a comment
+
+model A { // This is a comment
+  // This is a comment
+  ...
+
+}
+// This is a comment
+
+type Data { // This is a comment
+  // This is a comment
+  ...
+
+} // This is a comment
+```
+
+#### Pragmas
+
+Pragma in FSL are used to declare or modify the behaviour in a scope (block, global).
+Pragmas are written in the following pattern `@@pragma_name(pragma_arguments)`. (pragma [arguments](#arguments) can be either named or positional or a combination of both)
+
+an example of pragmas is the [`node` pragma](#node-pragma)
+
+#### Modifiers
+
+Modifiers in FSL are used to modify the behaviour of a statement or add certain metadata .
+Modifiers are written in the following pattern `@modifier_name(modifier_arguments)`. (modifier [arguments](#arguments) can be either named or positional or a combination of both)
+
+an example of pragmas is the [`Relation` modifier](#relation-modifier)
+
+:::info
+Modfiers and Pragmas are written in a similar pattern but Modfiers start with a single annotation while pragmas start with two.
+Modifiers names are in Pascal Case while Pragmas names are in snake_case
+:::
+
+#### Arguments
+
+-   **_Positional Arguments_**: comma-seperated values, for example`(1,'a',true)`. Position is important hence the name so `(1,'a',true)` is not the same as `('a',true,1)`
+-   **_Named Arguments_**: each argument is written in the following pattern `name: value`, arguments are sperated by commas also. for example `(name: 'frost',year:2022)`. Position is not important so `(name: 'frost',year:2022)` is the same as `(year:2022, name: 'frost')`.
+-   **_Both Types of Arguments_**:
+    -   Position of the named arguments is not relevant they can be at the begining or the end or scatterd between the parenthesis.
+    -   Position of the Positional arguments is determined relative to the occurence of the specific argument, so a third positional argument could be number 5 in the parenthesis given that there are two named arguments before it.
+        -   for example: `('first_pos_arg','second_pos_arg',a:1,b:2,'third_pos_arg')`
+            -   the arguments map will be as follows:
+                -   `args[0] = 'first_pos_arg'`
+                -   `args[1] = 'second_pos_arg'`
+                -   `args[2] = 'third_pos_arg'`
+                -   `args['a'] = 1`
+                -   `args['b] = 2`
+
+:::caution
+Even though frost allows the user to mix the position in the arguments, The user should follow a structure to avoid confusion.
+Recommend Structure: to write all the posiotional arguments first then the named arguments, this way it's easy to determine the position of the positional arguments.
+:::
+
+#### Primitive Values
+
+FSL allows three types of primitive values to be used in arguments, pragmas, modifiers, and definitions. These three types are:
+
+-   Boolean: [`true`,`false`]. (case sensitive).
+-   Numbers:
+    -   Integers: examples(`1`,`20`)
+    -   Decimal (floats): examples(`1.0`,`20.2`)
+    -   Negative: examples(`-1.0`,`-20`)
+-   Strings:
+    -   single quotation: example(`'name'`)
+    -   double quotation: example(`"name"`)
+    -   backtick quotation: example(`` `name` ``)
+
+#### Allowed Data types
+
+Data Types will be used to define the type of properties in [Models](#defining-models) and [Types](#defining-types).
+
+The Allowed Data Types are:
+
+| FSL                                 | Typescript/Javascript   |
+| ----------------------------------- | ----------------------- |
+| String                              | `string`                |
+| Boolean                             | `boolean`               |
+| Double, Float, Decimal, Long, Short | `number`                |
+| Date                                | `Date`                  |
+| Json                                | `any`                   |
+
+-   Also, Any [Enum](#defining-enums) or [Type](#defining-types) that have been already defined can be used as the type of the property.
+  - Inside [Model Relations Definitions](#defining-models), Other Models Could be used as Data types.
+-   All these types can be used as arrays by adding `[]`,  Eaxmple: `String[]`
+-   All these types can be marked as optional using `?`, Eaxmples: `String?`, `String[]?`
+-   Map/Record: **_Coming soon_** use json type instead or define a specific [type](#defining-types)
+
+:::info
+All types are case insensitive except for user-defined types and enums.
+:::
+
+### Defintions
+There are types of definitions in FSL [`model`,`enum`,`type`]. each definition starts with the declartion statement then followed by a block of statements 
+(assignment statements in `enum` block, and property declartion statements in `type` an `model`)
+
+Each Definition follows the following pattern
+```prisma
+<definition_type> <instance_name> {
+  <statements>
+}
+```
+
+for example:
+```prisma
+enum Name {
+  FIRST
+  MIDDLE
+  LAST
+}
+```
+
+#### Defining Enums
+Enums in FSL, follow the same style of enums in Typescript.
+To declare the enum:
+- write down `enum <enum_name> ` and follow with a block of code by opening two curly brackets `{}`
+- Between the two curly brackets, define the enum values using assignment statements.
+  - each statement follows the pattern `<name> = <value>`, so something like `A = 'a'`
+  - If the value is not provided, it defaults to the typical behaviour of Typescript. ie; the enum value will be the integer representing the position stating from zero.
+
+```prisma
+enum Character {
+  A
+  B
+  C
+  ...
+}
+
+//The Above is equivalent to
+enum Character {
+  A = 0
+  B = 1
+  C = 2
+  ...
+}
+```
+The value of the enum values could be any of the [primitives](#primitive-values), so you could something like:
+```prisma
+enum Character {
+  A = 'a'
+  B = 'b'
+  C = 'c'
+  ...
+}
+
+// or even something mixed like
+enum Character {
+  A = 'a'
+  B = 2
+  C = true
+  D
+  ...
+}
+
+```
+
+#### Defining Types
+Types in FSL are like types in Typescript, the represent data interfaces.
+to declare a type:
+- write down `type <type_name> ` and follow with a block of code by opening two curly brackets `{}`
+- Between the two curly brackets, define the properties with the pattern `<property_name> <property_type>`, property_type should follow mentioned above in ["Allowed Data types"](#allowed-data-types) section. 
+
+```prisma
+type Name {
+  first_name String
+  middle_name String? // This an optional property
+  last_name String
+}
+
+// another example 
+
+type ContactInfo {
+  name Name // this uses the type defined above
+  email String // this is a primitive string
+  initials Character[]? // this uses the enum defined in the previous section and it's an array and also optional
+}
+```
+
+#### Defining Models
+Models in FSL represent the sturcture of the data objects in a certain node in the database.
+The syntax for defining a model is very similar for defining a Type except for a few differences.
+- Of course you will use the keyword `model` instead of `type` at the begining of the declaration.
+- Property definition statements in the model can accept the [`Relation` modifier](#relation-modifier).
+  - Other models can be used as data types in the model properties declaration, and actually you will have to use them if you want to decalre a relation between two models
+- The [`node`` pragma](#node-pragma) can be used in the model definition block.
+```prisma
+model Student {
+
+  // the students list will be stored in te following path in the database /students/<student_id>
+  @@node(path:'students') 
+
+  contactInfo ContactInfo // this uses the data type defined in the previous section
+  dateOfBirth Date // Native Date type
+
+  courses Courses[] @Relation() 
+  // this property is used to define a relation with the Course model, since the data type is model.
+  // you will find a corresponding property in the Course model
+  // Since properties on both side are array types then the relation is `many to many`
+
+}
+
+model Course {
+
+  // the courses list will be stored in te following path in the database /courses/<course_id>
+  @@node(path:'courses') 
+
+  level CourseLevel // a user-defined enum
+  name String
+  duration Int
+
+  students Student[] @Relation()
+}
+```
+##### `node` Pragma
+The node pragma is used to add any extra metadata for the node model. As of right now the only option available inside the node pragma is the `path`.
+The `path` argument is used to determine the path of the node in the firebaseDB that will contain the list of the model nodes. if the node pragma is not used the path will default to the same name of the model.
+
+##### `Relation` Modifier
+The `Relation` Modifier is used to mark which properties have relations with other Models.
+By default the Relation modifier requires no arguments, But if you have multiple relations between the same models then you have to specify the name of the relation using the `name` argument.
+
+:::info
+The Type of the relation is determined from the Data type of the property.
+- ***Many To Many***: if both sides are arrays
+- ***One To Many***: if one side is an array and the other is not.
+- ***One To One***: if both sides are not arrays
+:::
+```prisma
+model A {
+ ...
+
+ b1 B  @Relation()
+ b2 B  @Relation(name: "A_B_second")
+}
+
+model B {
+
+a1 A @Relation()
+a2 A @Relation(name: "A_B_second")
+
+}
+```
+:::info
+You don't have to specify the name for the first relation between `b1` and `a1`, 
+but you could if you want to make it less ambigous. you could put `name: "A_B_first"` between the parenthesis `@Relation(name: "A_B_first")` on both sides
+:::
+## Syntax Highlighting
+
+### Vscode
+An Extension for Syntax Highlighting FSL in VScode was created. You can find it [here](https://marketplace.visualstudio.com/items?itemName=frost-orm.frost-schema-syntax-highlighting)
+
+![Vscode syntax Highlight Example 01](/img/syntax-highlight/vscode/01.png)
+![Vscode syntax Highlight Example 02](/img/syntax-highlight/vscode/02.png)

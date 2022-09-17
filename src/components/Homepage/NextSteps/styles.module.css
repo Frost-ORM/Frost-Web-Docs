@@ -22,3 +22,8 @@
     height: 200px;
     width: auto;
 }
+.featuresRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }

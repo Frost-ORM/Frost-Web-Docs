@@ -1,0 +1,45 @@
+---
+sidebar-position: 3
+description: A guide on using the Frost CLI to generate the code from the schema.
+title: Generate Frost App Implementation
+---
+
+## Location of the schema file
+The default name and location for the frost schema file is `$PROJECT_DIR/frost/schema.fsl`,
+but if the user wants to store the file in a different name or location,
+then you can specify the  path for the file in ***`package.json`***
+
+```json5
+{
+    ...
+
+    "frost":{
+        "schema":{
+            "path":"<path_to_schema_file>"
+        }
+    }
+    ...
+}
+```
+
+## The `generate` command
+After defining the schema and ensuring that you have installed `@frost-orm/frost-web-client` package, 
+then you can run the following generate command. 
+This will generate all the code required to start using Frost client
+
+```bash
+npx frost generate
+```
+
+:::info
+The generate command has two aliases `gen` and `g`
+so you can instead use it as follows
+```bash
+npx frost g
+# Or
+npx frost gen
+```
+:::
+
+
+<!-- TODO  Add options -->

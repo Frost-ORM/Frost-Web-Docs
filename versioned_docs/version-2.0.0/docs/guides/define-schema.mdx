@@ -1,0 +1,118 @@
+---
+sidebar-position: 2
+description: A guide on how to define nodes and the relations between them using Frost Schema Language
+title: Define Frost Schema
+---
+The schema for The Frost Client is defined using the Frost Schema Language (FSL), 
+a detailed guide on FSL can be found [here](/frost-schema-language).
+
+***Please checkout [Types Definitions](/frost-schema-language#defining-types)  and [Enums Definitions](/frost-schema-language#defining-enums) Sections in [FSL guide](/frost-schema-language)***
+
+Before Defining Models create `frost/schema.fsl` file in your project directory, this will contain the schema.
+
+## Define the models
+
+The syntax for defining a model is very similar for defining a Type except for a few differences.
+- Start the definition with `model` keyword followed by the model name, As in lines `[1,10]`.
+- After the name of the model open two curly brackets which denotes the model block containing all the properties of that model
+- define the properties of the model with this pattern `<property_name> <property_type>`
+  - checkout the allowed property types in the ["Allowed Data types"](/frost-schema-language#allowed-data-types) section in [FSL quick guide](/frost-schema-language).
+  - properties could be optional by adding `?` to the type
+  - properties could be arrays by adding `[]` to the type
+
+```prisma
+model Student {
+
+  name String
+  email String
+
+  dateOfBirth Date 
+
+}
+
+model Course {
+
+  level CourseLevel // a user-defined enum
+  name String
+  duration Int
+
+}
+```
+### Node database path
+The `node` pragma is used to add any extra metadata for the node model.
+The `path` argument in the node pragma is used to determine the path of the node in the firebaseDB 
+that will contain the list of the model nodes. if the `node` pragma is not used the path will default to the same name of the model.
+
+As you can see in ***Lines 4 and 19***, the node pragma is used to define the paths for each model
+```prisma showLineNumbers
+model Student {
+
+  name String
+  email String
+
+  // the students list will be stored in te following path in the database /students/<student_id>
+  @@node(path:'students') 
+
+  dateOfBirth Date
+
+}
+
+model Course {
+
+  // the courses list will be stored in te following path in the database /courses/<course_id>
+  @@node(path:'courses') 
+
+  level CourseLevel // a user-defined enum
+  name String
+  duration Int
+
+}
+```
+
+### Defining the Relations
+
+- Property definition statements in the model can accept the [`Relation` modifier](/frost-schema-language#relation-modifier).
+  - Other models can be used as data types in the model properties declaration, and actually you will have to use them if you want to decalre a relation between two models
+- To connect two models, simply:
+  - Define a property on each model with the type of the other model you want to connect to.
+  - Add `@Relation()` after the property definition, as in Lines `[10,26]` in the code block below.
+  - The Type of the relation is determined by the Data type (wheter it's an array or not):
+    - ***Many To Many***: if both sides are arrays
+    - ***One To Many***: if one side is an array and the other is not.
+    - ***One To One***: if both sides are not arrays
+  - In the example below the relation is `Many-to-Many` due to both sides being array types.
+
+:::info
+You can define multiple relations between the same models; by passing the name of the relation to the `name` argument in the relation modifier,
+you can find a detailed guide [here](/frost-schema-language#relation-modifier)
+:::
+
+```prisma showLineNumbers
+model Student {
+
+// the students list will be stored in te following path in the database /students/<student_id>
+  @@node(path:'students') 
+
+  name String
+  email String 
+  dateOfBirth Date 
+
+  courses Courses[] @Relation() 
+// this property is used to define a relation with the Course model,
+// since the data type is model. you will find a corresponding property in the Course model
+// Since properties on both side are array types then the relation is `many to many`
+
+}
+
+model Course {
+
+  // the courses list will be stored in te following path in the database /courses/<course_id>
+  @@node(path:'courses') 
+
+  level CourseLevel // a user-defined enum
+  name String
+  duration Int
+
+  students Student[] @Relation()
+}
+```

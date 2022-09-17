@@ -1,0 +1,25 @@
+---
+sidebar_position: 2
+description: you can exclude data from being serialized an pushed to the server.
+---
+
+# Excluding Data
+Frost provides another Deocrator [`Exclude`](../../api/decorators/Exclude), so you can mark the properties that you don't want to be serialzied and pushed to the server.
+
+```ts
+
+@FrostEntity({collectionPath:"/users"})
+class User extends FrostObject<User>{
+    id?:string
+    name!:string
+    userType!: "Customer" | "Admin"
+
+    @Exclude()
+    selected?:boolean;
+
+    @Exclude()
+    localProperty?:boolean;
+    ...
+
+}
+```

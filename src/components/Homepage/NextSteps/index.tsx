@@ -20,16 +20,6 @@ const Steps: StepItem[] = [
     ),
   },
   {
-    title: 'Code Generation',
-    image: <img src={('img/code-gen.png')} className={styles.featureImage} role="img"/>,
-    description: (
-      <>
-        Frost will have a schema language that will be used to define the data models and their relations to generate the code instead of using annotations. <br/>
-        This will maximize compatibility with different versions of JS.
-      </>
-    ),
-  },
-  {
     title: 'Cover All Frameworks',
     image: <img src={('img/frameworks.png')} className={styles.featureImage} role="img"/>,
     description: (
@@ -61,7 +51,7 @@ export default function HomepageNextSteps(): JSX.Element {
     <section className={styles.section}>
       <h1>Next Steps</h1>
       <div className={"container " + styles.features} >
-        <div className="row">
+        <div className={clsx('row',styles.featuresRow)}>
           {Steps.map((props, idx) => (
             <Step key={idx} {...props} />
           ))}
