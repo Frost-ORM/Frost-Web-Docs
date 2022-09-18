@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkfrost_web_doc=self.webpackChunkfrost_web_doc||[]).push([[2759],{7569:s=>{s.exports=JSON.parse('{"label":"firebase","permalink":"/frost-web-docs/blog/tags/firebase","allTagsPath":"/frost-web-docs/blog/tags","count":1}')}}]);
