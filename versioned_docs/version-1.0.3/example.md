@@ -1,4 +1,7 @@
-# Frost Web V1 Example
+---
+toc_max_heading_level: 4
+---
+# Frost Web Annotations Example
 
 - Clone the [repo](https://github.com/Frost-ORM/frost-v1-web-example)
 - use `npm start` to launch the website
@@ -9,7 +12,7 @@
 
 ## The Data Structure
 
-<img src="/img/data-structure.svg" />
+![Data Structure Diagram](/img/data-structure.svg)
 
 ### Entities
 
@@ -353,7 +356,7 @@ export class Course extends FrostObject<Course> {
 - The firebase configuration object is passed as the first argument to the [Frost.initialize](./api/classes/Frost#initialize) function.
 - The APIs are passed in a map as the second argument. ***If the keys for the APIs are specified then you can access the APIs by the name you desire***
 - The Function Returns a FrostApp Instance containing the APIs instances and the `firebaseApp` instance.
-- On `Line 8`: the firebase DB instance is retrieved by passing the `firebaseApp` instance to the [getDatabase()](https://firebase.google.com/docs/reference/js/database#getdatabase) function. this instance will be used in the [update()](https://firebase.google.com/docs/reference/js/database#getdatabase) function in [Mock Data](#mock-data)
+- On `Line 8`: the firebase DB instance is retrieved by passing the `firebaseApp` instance to the [getDatabase()](https://firebase.google.com/docs/reference/js/database#getdatabase) function. this instance will be used in the [update()](https://firebase.google.com/docs/reference/js/database#update) function in [Mock Data](#mock-data)
 
 ```typescript title=src/database/frost.ts
 export const FrostApp = Frost.initialize(firebaseConfig, {

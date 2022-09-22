@@ -1,147 +1,267 @@
 # Frost Web Codegen Example
 
-:::danger
-this page is under development please ignore any details written here
-:::
-
-- Clone the [repo](https://github.com/Frost-ORM/frost-web-codegen-example)
+- Clone the repo
+  - VanillaJS: Native using Webpack. [Link to repo](https://github.com/Frost-ORM/frost-web-codegen-example-native)
+  <!-- - React (CRA). [Link to repo](https://github.com/Frost-ORM/frost-web-codegen-example-react) -->
 - `npm install` then `npx frost generate` or the shorthand `npx frost g` . ***you might not need to run the frost generate command depending on your npm configuration and version, you can run it either way just to be safe***
 - use `npm start` to launch the website
 
 :::danger
 ***Please Don't forget to fill the firebaseConfig object in `src/database/frost.ts`***
+
+***Also Don't forget to use getIndices function and add the rules to your firebaseDB***
 :::
 
 ## The Data Structure
 
 <img src="/img/data-structure.svg" />
 
+### Schema
+
+:::caution
+The schema file in the example is not in default location. The location for the schema is specified inside package.json
+
+```json title="$PROJECT_DIR/package.json"
+{
+  ...
+
+  "frost":{
+    "schema":{
+      "path": "frostSchema.fsl"
+    }
+  }
+  ...
+}
+```
+
+:::
+
+:::info
+For more details on Defining the schema, go to [this page](./docs/guides/define-schema.mdx)
+:::
+
+```fsl showLineNumbers title='$PROJECT_DIR/frostSchema.fsl'
+model Student {
+    @@node(path:"/testing/students")
+    name string
+    year  SchoolYear
+    birthday Date?
+    email string?
+
+    courses Course[] @Relation()
+    club Club @Relation()
+
+}
+
+enum SchoolYear {
+    FRESHMAN = "FRESHMAN"
+    SOPHOMORE = "SOPHOMORE"
+    JUNIOR = "JUNIOR"
+    SENIOR = "SENIOR"
+}
+
+model Professor {
+    @@node(path:"/testing/professors")
+    
+    name string
+    contactInfo ContactInfo?
+    department string
+    email string
+
+    courses Course[] @Relation()
+    club Club @Relation()
+}
+
+type ContactInfo {
+    phone   string
+    email   string
+}
+
+model Course {
+    @@node(path:"/testing/courses")
+    
+    name string
+    difficultyLevel DifficultyLevel
+    duration Duration // in weeks
+    department string
+
+    students Student[] @Relation()
+    professor Professor @Relation()
+}
+
+enum DifficultyLevel {
+    INTRODUCTORY = "INTRODUCTORY"
+    INTERMEDIATE = "INTERMEDIATE"
+    UPPER_INTERMEDIATE = "UPPER_INTERMEDIATE"
+    ADVANCED_PLACEMENT = "ADVANCED_PLACEMENT"
+}
+enum Duration {
+  FULL_YEAR = 24
+  FULL_SEMESTER = 12
+  HALF_SEMESTER = 6
+}
+
+model Club {
+    @@node(path:"/testing/clubs")
+
+    name string
+    type ClubType
+    roomId string
+
+    members Student[] @Relation()
+    supervisor Professor @Relation()
+}
+
+enum ClubType {
+    STEM = "STEM"
+    SPORTS = "SPORTS"
+    CREATIVE = "CREATIVE"
+}
+```
+
 ### Models
 
 #### Students
 
-- The node path is defined inside the [FrostEntity](./api/decorators/FrostEntity) decorator
-- The node has 4 properties
-  - name
-  - year
-  - email
-  - birthday
+- The node path [`"/testing/students"`] is defined using the `@@node` pragma.
+- The Node Model has :
+  - 4 base properties
+    - name
+    - year
+      - Type `SchoolYear` is User defined Enum. 
+    - email
+    - birthday
+  - 2 relational properties
+    - courses: denotes a relation with the `Course` Model
+    - club: denotes a relation with the `Club` Model
 
-```typescript title='src/database/student.ts'
-@FrostEntity({ collectionPath: "/testing/students" })
-export class Student extends FrostObject<Student> {
+```prisma
+model Student {
+    @@node(path:"/testing/students")
+    name string
+    year  SchoolYear
+    birthday Date?
+    email string?
 
-    name?: string;
-    year?: "FRESHMAN" | "SOPHOMORE" | "JUNIOR" | "SENIOR";
-    email?: string;
+    courses Course[] @Relation()
+    club Club @Relation()
 
-    @Exclude()
-    excludeExample?: string;
-
-    @DateSerializer<Student>()
-    birthday?: Date;
-    ...
-    ...
-    .
-    .
 }
 
-@FrostNode({
-    entity: Student,
-})
-export class StudentApi extends FrostApi<Student> {}
+enum SchoolYear {
+    FRESHMAN = "FRESHMAN"
+    SOPHOMORE = "SOPHOMORE"
+    JUNIOR = "JUNIOR"
+    SENIOR = "SENIOR"
+}
+
 
 ```
 
 #### Professors
 
-- The node path is defined inside the [FrostEntity](./api/decorators/FrostEntity) decorator
-- The node has 4 properties
-  - name
-  - department
-  - email
-  
-```typescript title='src/database/professor.ts'
-@FrostEntity({collectionPath:'/testing/professor'})
-export class Professor extends FrostObject<Professor>{
+- The node path [`"/testing/professors"`] is defined using the `@@node` pragma.
+- The Node Model has :
+  - 4 base properties
+    - name
+    - contactInfo
+      - Type `ContactInfo` is User defined Type. 
+    - department
+    - email
+  - 2 relational properties
+    - courses: denotes a relation with the `Course` Model
+    - club: denotes a relation with the `Club` Model
 
-    name?:string;
-    department?:string;
-    email?:string;
+```prisma
+model Professor {
+    @@node(path:"/testing/professors")
+    
+    name string
+    contactInfo ContactInfo?
+    department string
+    email string
 
-    ...
-
+    courses Course[] @Relation()
+    club Club @Relation()
 }
 
-@FrostNode({
-    entity: Professor,
-})
-export class ProfessorApi extends FrostApi<Professor> {}
-
+type ContactInfo {
+    phone   string
+    email   string
+}
 ```
 
 #### Courses
 
-- The node path is defined inside the [FrostEntity](./api/decorators/FrostEntity) decorator
-- The node has 4 properties
-  - name
-  - department
-  - duration: (enum)
-  - difficultyLevel: (enum)
+- The node path [`"/testing/courses"`] is defined using the `@@node` pragma.
+- The Node Model has :
+  - 4 base properties
+    - name
+    - department
+    - duration:
+      - Type `Duration` is User defined Enum.
+    - difficultyLevel:
+      - Type `DifficultyLevel` is User defined Enum.
+  - 2 relational properties
+    - students: denotes a relation with the `Student` Model
+    - professor: denotes a relation with the `Professor` Model
   
-```typescript title='src/database/course.ts'
+```prisma
+model Course {
+    @@node(path:"/testing/courses")
+    
+    name string
+    difficultyLevel DifficultyLevel
+    duration Duration 
+    department string
 
-export enum Duration {
-  FULL_YEAR = 24,
-  FULL_SEMESTER = 12,
-  HALF_SEMESTER = 6,
+    students Student[] @Relation()
+    professor Professor @Relation()
 }
 
-@FrostEntity({collectionPath:'/testing/courses'})
-export class Course extends FrostObject<Course> {
-
-    name?:string;
-    difficultyLevel?: "INTRODUCTORY" | "INTERMEDIATE" | "UPPER_INTERMEDIATE" | "ADVANCED_PLACEMENT";
-    duration?: Duration; // in weeks
-    department?: string;
-
-    ...
-
+enum DifficultyLevel {
+    INTRODUCTORY = "INTRODUCTORY"
+    INTERMEDIATE = "INTERMEDIATE"
+    UPPER_INTERMEDIATE = "UPPER_INTERMEDIATE"
+    ADVANCED_PLACEMENT = "ADVANCED_PLACEMENT"
 }
-
-@FrostNode({
-    entity: Course,
-})
-export class CourseApi extends FrostApi<Course> {}
+enum Duration { // in weeks
+  FULL_YEAR = 24
+  FULL_SEMESTER = 12
+  HALF_SEMESTER = 6
+}
 ```
 
 #### Clubs
 
-- The node path is defined inside the [FrostEntity](./api/decorators/FrostEntity) decorator
-- The node has 4 properties
-  - name
-  - roomId
-  - type: (enum)
+- The node path [`"/testing/clubs"`] is defined using the `@@node` pragma.
+- The Node Model has :
+  - 4 base properties
+    - name
+    - roomId
+    - type:
+      - Type `ClubType` is User defined Enum.
+  - 2 relational properties
+    - members: denotes a relation with the `Student` Model
+    - supervisor: denotes a relation with the `Professor` Model
+  
+```prisma
+model Club {
+    @@node(path:"/testing/clubs")
 
-```typescript title='src/database/club.ts'
-@FrostEntity({collectionPath:'/testing/clubs'})
-export class Club extends FrostObject<Club> {
+    name string
+    type ClubType
+    roomId string
 
-    name?: string;
-
-    type?: "STEM" | "SPORTS" | "CREATIVE";
-
-    roomId?: string;
-
-    ...
-
+    members Student[] @Relation()
+    supervisor Professor @Relation()
 }
 
-@FrostNode({
-    entity: Club,
-})
-export class ClubApi extends FrostApi<Club> {}
-
+enum ClubType {
+    STEM = "STEM"
+    SPORTS = "SPORTS"
+    CREATIVE = "CREATIVE"
+}
 ```
   
 ### Relations
@@ -151,45 +271,26 @@ export class ClubApi extends FrostApi<Club> {}
 ##### Club Supervisor (Professor <--> Club)
 
 - Each Club has one supervisor and each professor supervises only one club.
-- Relation Name: `CLUB_SUPERVISOR` constant. should be passed to the decorator on both sides.
-- Relation Type: `RelationTypes.ONE_TO_ONE`. should be passed to the decorator at least on one side.
-- `Professor`:
-  - `club` property is decorated with the [Relation](./api/decorators/Relation) decorator.
-    - `type: ()=> CLub` is passed to the decorator and it's the same as the type of the property since it's "One to One"
-- `Club`:
-  - `supervisor` property is decorated with the [Relation](./api/decorators/Relation) decorator.
-    - `type: ()=> Professor` is passed to the decorator and it's the same as the type of the property since it's "One to One"
+- Relation Type: `RelationTypes.ONE_TO_ONE`.
+  - `Professor` Model:
+    - `club` property is single instance (ie; not array) and has `@Relation` modifier
+  - `Club` Model:
+    - `supervisor` property is single instance (ie; not array) and has `@Relation` modifier
+  - You can determine that the relation is one-to-one by looking at the relational properties on each side. In this case the properties [`club`,`supervisor`] are both not arrays so it's a `One to One` Relation.
   
-```typescript title='src/database/professor.ts'
-import {CLUB_SUPERVISOR} from "./const.ts"
+```prisma
 
-@FrostEntity({collectionPath:'/testing/professor'})
-export class Professor extends FrostObject<Professor>{
-
+model Professor {
     ...
-
-    @Relation({ name: CLUB_SUPERVISOR, type: () => Club,relation:RelationTypes.ONE_TO_ONE })
-    club?: () => Club
-
+    club Club @Relation()
     ...
-
 }
 
-```
 
-```typescript title='src/database/club.ts'
-import {CLUB_SUPERVISOR} from "./const.ts"
-
-@FrostEntity({collectionPath:'/testing/clubs'})
-export class Club extends FrostObject<Club> {
-
+model Club {
     ...
-
-    @Relation({ name: CLUB_SUPERVISOR, type: () => Professor,relation:RelationTypes.ONE_TO_ONE })
-    supervisor?: () => Professor
-
+    supervisor Professor @Relation()
     ...
-
 }
 
 ```
@@ -199,48 +300,25 @@ export class Club extends FrostObject<Club> {
 ##### Club Members (Club <--> Student)
 
 - Each Club has multiple students (members) and each student is allowed to participate in one club only
-- Relation Name: `CLUB_STUDENTS` constant. should be passed to the decorator on both sides.
-- Relation Type: `RelationTypes.ONE_TO_MANY`. should be passed to the decorator at least on one side.
-- `Club`: (Main)
-  - `students` property is decorated with the [Relation](./api/decorators/Relation) decorator.
-    - `type: ()=> Student` is passed to the decorator while the type of the property is `()=> Student[]` since the `Club` is the main (one) side and the `Student` are the many side.
-    - Also, Since the Club is the Main side; then `master: true` should be passed to the relation decorator.
-- `Student`: (Secondary)
-  - `club` property is decorated with the [Relation](./api/decorators/Relation) decorator.
-    - `type: ()=> Club` is passed to the decorator and the type of the property is also `()=> Club` since the `Student` is the secondary (many) side and the `Club` is main (one) side.
+- Relation Type: `RelationTypes.ONE_TO_MANY`
+  - `Club` Model:
+    - `members` property is an array type and has `@Relation` modifier
+  - `Student` Model:
+    - `club` property is single instance (ie; not array) and has `@Relation` modifier
+  - You can determine that the relation is One-to-Many by looking at the relational properties on each side. In this case, the `members` property on **Club** Model is any array, and the `club` property on the **Student** model is not an array. So it's a `One to Many` Relation.
 
-:::info
-***Tip: `master: true` should be in the Relation decorator that decorates the property with the Array type***
-:::
+```prisma
 
-```typescript title='src/database/club.ts'
-import {CLUB_STUDENTS} from './consts.ts'
-
-@FrostEntity({collectionPath:'/testing/clubs'})
-export class Club extends FrostObject<Club> {
-
+model Student {
     ...
-
-    @Relation({ name: CLUB_STUDENTS, type: () => Student,relation: RelationTypes.ONE_TO_MANY, master: true })
-    students?: () => Student[]
-
+    club Club @Relation()
     ...
 }
 
-```
-
-```typescript title='src/database/student.ts'
-import {CLUB_STUDENTS} from './consts.ts'
-
-export class Student extends FrostObject<Student> {
-    
+model Club {
     ...
-
-    @Relation({ name: CLUB_STUDENTS, type: () => Club, relation: RelationTypes.ONE_TO_MANY })
-    club?: () => Club;
-
-    ..
-
+    members Student[] @Relation()
+    ...
 }
 
 ```
@@ -248,55 +326,26 @@ export class Student extends FrostObject<Student> {
 ##### Professors' Courses  (Professor <--> Course)
 
 - Each Course is taught by one professor but one professor teaches multiple courses.
-- Relation Name: `CLUB_STUDENTS` constant. should be passed to the decorator on both sides.
-- Relation Type: `RelationTypes.ONE_TO_MANY`. should be passed to the decorator at least on one side.
-- `Professor`:(Main)
-  - `courses` property is decorated with the [Relation](./api/decorators/Relation) decorator.
-    - `type: ()=> Course` is passed to the decorator while the type of the property is `()=> Course[]` since the `Professor` is the main (one) side and the `Course` is the many side.
-    - Also, Since the Club is the Main side; then `master: true` should be passed to the relation decorator.
-- `Course`:(Secondary)
-  - `professor` property is decorated with the [Relation](./api/decorators/Relation) decorator.
-    - `type: ()=> Professor` is passed to the decorator and the type of the property is also `()=> Professor` since the `Course` is the secondary (many) side and the `Professor` is main (one) side.
+- Relation Type: `RelationTypes.ONE_TO_MANY`
+  - `Professor` Model:
+    - `courses` property is an array type and has `@Relation` modifier
+  - `Course` Model:
+    - `professor` property is single instance (ie; not array) and has `@Relation` modifier
+  - You can determine that the relation is One-to-Many by looking at the relational properties on each side. In this case, the `courses` property on **Professor** Model is any array, and the `professor` property on the **Course** model is not an array. So it's a `One to Many` Relation.
 
-:::info
-***Tip: `master: true` should be in the Relation decorator that decorates the property with the Array type***
-:::
-
-```typescript title='src/database/professor.ts'
-import {PROFESSOR_COURSES} from './consts.ts'
-
-@FrostEntity({collectionPath:'/testing/professor'})
-export class Professor extends FrostObject<Professor>{
-
+```prisma
+model Course {
     ...
-
-    @Relation({ name: PROFESSOR_COURSES , type: () => Course, relation:RelationTypes.ONE_TO_MANY, master:true})
-    courses?: () => Course[]
-
+    professor Professor @Relation()
     ...
-
 }
-```
 
-```typescript title='src/database/course.ts'
-import {PROFESSOR_COURSES} from './consts.ts'
-
-export class Course extends FrostObject<Course> {
-
+model Professor {
     ...
-
-    @Relation(
-      {
-        name: PROFESSOR_COURSES,
-        type: () => Professor,
-        relation: RelationTypes.ONE_TO_MANY
-      }
-    )
-    professor?:() => Professor
-
+    courses Course[] @Relation()
     ...
-
 }
+
 
 ```
 
@@ -305,46 +354,25 @@ export class Course extends FrostObject<Course> {
 ##### Students' Courses (Student <--> Course)
 
 - Each Course is audited by multiple students and each student audits multiple courses
-- Relation Name: `STUDENT_COURSES` constant. should be passed to the decorator on both sides.
-- Relation Type: `RelationTypes.MANY_TO_MANY`. should be passed to the decorator at least on one side.
-- `Student`:
-  - `courses` property is decorated with the [Relation](./api/decorators/Relation) decorator.
-    - `type: ()=> Course` is passed to the decorator while the type of the property is `()=> Course[]` since it's "Many to Many"
-- `Course`:
-  - `students` property is decorated with the [Relation](./api/decorators/Relation) decorator.
-    - `type: ()=> Student` is passed to the decorator while the type of the property is `()=> Student[]` since it's "Many to Many"
-  
+- Relation Type: `RelationTypes.MANY_TO_MANY`:
+  - `Student` Model:
+    - `courses` property is an array type and has `@Relation` modifier
+  - `Course` Model :
+    - `students` property is an array type and has `@Relation` modifier
+  - You can determine that the relation is Many-to-Many by looking at the relational properties on each side. In this case the properties [`students`,`courses`] are both arrays so it's a `Many to Many` Relation.
 
-```typescript title='src/database/student.ts'
-import {STUDENT_COURSES} from './consts.ts'
-
-export class Student extends FrostObject<Student> {
+```prisma
+model Student {
     ...
-    
-    @Relation({
-        name: STUDENT_COURSES,
-        relation: RelationTypes.MANY_TO_MANY,
-        type: () => Course,
-    })
-    courses?: () => Course[];
-
+    courses Course[] @Relation()
     ...
+
 }
 
-```
-
-```typescript title='src/database/course.ts'
-import {STUDENT_COURSES} from './consts.ts'
-
-export class Course extends FrostObject<Course> {
-
+model Course {
     ...
-
-    @Relation({ name: STUDENT_COURSES, type: () => Student })
-    students?: () => Student[]
-
+    students Student[] @Relation()
     ...
-
 }
 
 ```
@@ -354,19 +382,11 @@ export class Course extends FrostObject<Course> {
 ### Initialization
 
 - The firebase configuration object is passed as the first argument to the [Frost.initialize](./api/classes/Frost#initialize) function.
-- The APIs are passed in a map as the second argument. ***If the keys for the APIs are specified then you can access the APIs by the name you desire***
-- The Function Returns a FrostApp Instance containing the APIs instances and the `firebaseApp` instance.
-- On `Line 8`: the firebase DB instance is retrieved by passing the `firebaseApp` instance to the [getDatabase()](https://firebase.google.com/docs/reference/js/database#getdatabase) function. this instance will be used in the [update()](https://firebase.google.com/docs/reference/js/database#getdatabase) function in [Mock Data](#mock-data)
+- The Function Returns a FrostApp Instance containing the Delegates instances for each model, the `firebaseApp` instance, and the `firebaseDB` instance (SDK 9).
+- The [`firebaseDB` instance](https://firebase.google.com/docs/reference/js/database.database.md#database_class) will be used in the [update()](https://firebase.google.com/docs/reference/js/database#update) function in [Mock Data](#mock-data)
 
 ```typescript title=src/database/frost.ts
-export const FrostApp = Frost.initialize(firebaseConfig, {
-    CourseApi,
-    ClubApi,
-    ProfessorApi,
-    StudentApi,
-})
-
-export const fireDB = getDatabase(FrostApp.firebaseApp)
+export const FrostApp = Frost.initialize(firebaseConfig)
 ```
 
 ### Rendering
@@ -378,9 +398,9 @@ export const fireDB = getDatabase(FrostApp.firebaseApp)
 - Each list will contain cards displaying the data for each item.
 - The students list is empty by default. Each card in the Clubs and Courses List will have `Students List` Button. When this button is clicked; then the students for said course or club will be displayed in the list.
 
-- The Rendering is managed by native DOM Manipulation and Custom Web Elements (Cards and Buttons from Paper UI).
+- The Rendering is managed by native DOM Manipulation and Custom Web Elements (Cards and Buttons from Ionic UI).
 - We Have an observer for each list
-  - Clubs and Courses: Their observers are from the [observeMany()](./api/classes/FrostApi#observemany) function in their respective FrostApi.
+  - Clubs and Courses: Their observers are from the [observeMany()](./api/classes/FrostDelegate#observemany) function in their respective FrostDelegate.
   - Students: Their Observer is manually created form a RX Subject. and the Emitting of the data to this observer is managed through the other observers and the `onclick` events.
 
 ```typescript title=src/index.ts
@@ -390,9 +410,9 @@ export const fireDB = getDatabase(FrostApp.firebaseApp)
  * When Clicked set the data in the selected variable
  * and Emit the new students list
  */
-function handleStudentsListClick(data: Club | Course){
-    selected = { type: data instanceof Club ? "club":"course", id: data.id };
-    studentsSubject.next(data.students?.() ?? []);
+function handleStudentsListClick(data: ClubTypes["FullModel"] | CourseTypes["FullModel"]){
+    selected = { type: ClubPredicate(data) ? "club":"course", id: data.id };
+    studentsSubject.next(Object.values(( ClubPredicate(data)? data.members : data.students )?? []) as any);
 }
 
 /*
@@ -400,57 +420,57 @@ function handleStudentsListClick(data: Club | Course){
  * (No Constraints Passed , So it listens to all Courses) 
  * included with each course is the connected students and professor
  */
-FrostApp.CourseApi.observeMany({
-    include: ["professor", "students"],
+FrostApp.course.observeMany({
+  include: {"professor":true, "students":true},
 }).subscribe((data) => {
+  console.log({data})
+  /*
+   * When the data changes the coursesList div is modified
+   */
+  coursesList.replaceChildren(...Object.values(data).map((course)=>courseCard(course,handleStudentsListClick)));
 
-    /*
-     * When the data changes the coursesList div is modified
-     */
-    coursesList.replaceChildren(...data.map((course)=>courseCard(course,handleStudentsListClick)));
 
-
-    /*
-     * if the selected course changes then emit the new students list
-     * if empty then emit an empty student list
-     */
-    if (selected && selected.type === "course" ) {
-        if(!data.length) studentsSubject.next([])
-        else studentsSubject.next(data.find((value)=>value.id === selected?.id)?.students?.() ?? []);
-    }
+  /*
+   * if the selected course changes then emit the new students list
+   * if empty then emit an empty student list
+   */
+  if (selected && selected.type === "course" ) {
+      if(!Object.values(data).length) studentsSubject.next([])
+      else studentsSubject.next(Object.values(data[selected?.id]?.students ?? [] as any));
+  }
 
 });
 
 /*
- * Clubs Observer 
- * (No Constraints Passed , So it listens to all Clubs) 
- * included with each club is the connected students and supervisor
- */
-FrostApp.ClubApi.observeMany({ include: ["supervisor", "students"] }).subscribe(
-    (data) => {
-        /*
-         * When the data changes the clubsList div is modified
-         */
-        clubsList.replaceChildren(...data.map((club)=>clubCard(club,handleStudentsListClick)));
-    
+* Clubs Observer 
+* (No Constraints Passed , So it listens to all Clubs) 
+* included with each club is the connected students and supervisor
+*/
+FrostApp.club.observeMany({ include: {"supervisor":true, "members":true } }).subscribe(
+  (data) => {
+      /*
+       * When the data changes the clubsList div is modified
+       */
+      clubsList.replaceChildren(...Object.values(data).map((club)=>clubCard(club,handleStudentsListClick)));
+  
 
-        /*
-         * if the selected club changes then emit the new students list
-         * if empty then emit an empty student list
-         */
-        if (selected && selected.type === "club" ) {
-            if(!data.length) studentsSubject.next([])
-            else studentsSubject.next(data.find((value)=>value.id === selected?.id)?.students?.() ?? []);
-        }
+      /*
+       * if the selected club changes then emit the new students list
+       * if empty then emit an empty student list
+       */
+      if (selected && selected.type === "club" ) {
+          if(!Object.values(data).length) studentsSubject.next([])
+          else studentsSubject.next(Object.values(data[selected?.id]?.members ?? [] as any));
+      }
 
-    },
+  },
 );
 
 studentsSubject.subscribe((data) => {
-    /*
-     * When the data changes the studentsList div is modified
-     */
-    studentsList.replaceChildren(...data.map(studentCard));
+  /*
+   * When the data changes the studentsList div is modified
+   */
+  studentsList.replaceChildren(...data.map(studentCard));
 });
 
 
