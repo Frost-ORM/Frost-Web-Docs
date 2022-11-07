@@ -5,7 +5,7 @@ toc_max_heading_level: 4
 
 - Clone the repo
   - VanillaJS: Native using Webpack. [Link to repo](https://github.com/Frost-ORM/frost-web-codegen-example-v1-native)
-  <!-- - React (CRA). [Link to repo](https://github.com/Frost-ORM/frost-web-codegen-example-react) -->
+  - React (CRA). [Link to repo](https://github.com/Frost-ORM/frost-web-codegen-example-v1-react)
 - `npm install` then `npx frost generate` or the shorthand `npx frost g` . ***you might not need to run the frost generate command depending on your npm configuration and version, you can run it either way just to be safe***
 - use `npm start` to launch the website
 
